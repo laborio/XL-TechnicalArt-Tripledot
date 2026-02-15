@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3477318136341765396}
   - component: {fileID: 3646450975942466193}
   - component: {fileID: 8701203748224992388}
+  - component: {fileID: 5421349219794481091}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -60,7 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MPUIKit::MPUIKIT.MPImage
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.9490196, g: 0.9647059, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -174,6 +175,21 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 0, y: -12}
   m_UseGraphicAlpha: 1
+--- !u!114 &5421349219794481091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1409853024882021124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4824272b7adc49df9288155d962d03d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIThemeImage
+  theme: {fileID: 11400000, guid: 91a7c69ac39514125a99eaa9489d1058, type: 2}
+  colorToken: 5
+  customColorKey: BackgroundPanel
 --- !u!1 &2819037068062868711
 GameObject:
   m_ObjectHideFlags: 0
@@ -184,7 +200,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8476155244509002717}
   - component: {fileID: 1485683034771842641}
+  - component: {fileID: 8203964982719377462}
   - component: {fileID: 4605510091046965301}
+  - component: {fileID: 9140892921247573267}
   m_Layer: 5
   m_Name: ValueLabel
   m_TagString: Untagged
@@ -219,6 +237,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2819037068062868711}
   m_CullTransparentMesh: 1
+--- !u!114 &8203964982719377462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2819037068062868711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f1b4b50f9a64c8d82f524e2bce77d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIThemeText
+  theme: {fileID: 11400000, guid: 91a7c69ac39514125a99eaa9489d1058, type: 2}
+  styleToken: 4
+  customStyleKey: TopBarValue
 --- !u!114 &4605510091046965301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242,7 +275,7 @@ MonoBehaviour:
   m_text: 8,888
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0d073fb7b6d494674bdac224d21f6b7a, type: 2}
-  m_sharedMaterial: {fileID: 2360237640883973593, guid: 0d073fb7b6d494674bdac224d21f6b7a, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -310,6 +343,21 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &9140892921247573267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2819037068062868711}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5019608}
+  m_EffectDistance: {x: 1.5, y: -1.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3072584890033162145
 GameObject:
   m_ObjectHideFlags: 0
@@ -428,6 +476,7 @@ GameObject:
   - component: {fileID: 742012245939376912}
   - component: {fileID: 3763465908182156994}
   - component: {fileID: 3322279738248261969}
+  - component: {fileID: 5057033807339503228}
   m_Layer: 5
   m_Name: IconValueLabel
   m_TagString: Untagged
@@ -485,7 +534,7 @@ MonoBehaviour:
   m_text: 88
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b6b657a5607dd40b89eb748b04eb525b, type: 2}
-  m_sharedMaterial: {fileID: 2360237640883973593, guid: b6b657a5607dd40b89eb748b04eb525b, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -567,6 +616,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
   m_HorizontalFit: 2
   m_VerticalFit: 2
+--- !u!114 &5057033807339503228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4200530802107343415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f1b4b50f9a64c8d82f524e2bce77d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIThemeText
+  theme: {fileID: 11400000, guid: 91a7c69ac39514125a99eaa9489d1058, type: 2}
+  styleToken: 4
+  customStyleKey: TopBarIconCounter
 --- !u!1 &4578207376706810388
 GameObject:
   m_ObjectHideFlags: 0

@@ -276,17 +276,21 @@ PrefabInstance:
       propertyPath: m_PreserveAspect
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4443701425613011662, guid: 9dd9fd4cb24e5427fb57e6d8c6964b6d, type: 3}
+      propertyPath: customColorKey
+      value: Primary
+      objectReference: {fileID: 0}
     - target: {fileID: 5653550074453960052, guid: 9dd9fd4cb24e5427fb57e6d8c6964b6d, type: 3}
       propertyPath: m_Color.b
-      value: 1
+      value: 0.85882354
       objectReference: {fileID: 0}
     - target: {fileID: 5653550074453960052, guid: 9dd9fd4cb24e5427fb57e6d8c6964b6d, type: 3}
       propertyPath: m_Color.g
-      value: 0.40913862
+      value: 0.43529412
       objectReference: {fileID: 0}
     - target: {fileID: 5653550074453960052, guid: 9dd9fd4cb24e5427fb57e6d8c6964b6d, type: 3}
       propertyPath: m_Color.r
-      value: 0.051886797
+      value: 0.18431373
       objectReference: {fileID: 0}
     - target: {fileID: 5653550074453960052, guid: 9dd9fd4cb24e5427fb57e6d8c6964b6d, type: 3}
       propertyPath: m_Circle.m_Radius

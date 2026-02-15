@@ -1,0 +1,103 @@
+{
+  "colors": [
+    { "key": "Primary", "hex": "#2F6FDB" },
+    { "key": "PrimaryDark", "hex": "#1E4FA5" },
+
+    { "key": "Accent", "hex": "#62E043" },
+    { "key": "AccentAlt", "hex": "#FFC83D" },
+
+    { "key": "CurrencyCoin", "hex": "#FFC83D" },
+    { "key": "CurrencyHeart", "hex": "#FF4B6E" },
+    { "key": "CurrencyStar", "hex": "#FFD84F" },
+
+    { "key": "TextPrimary", "hex": "#1E2A3A" },
+    { "key": "TextSecondary", "hex": "#4F6B8A" },
+    { "key": "TextInverted", "hex": "#FFFFFF" },
+    { "key": "TextDisabled", "hex": "#A5B4C7" },
+
+    { "key": "StateActive", "hex": "#62E043" },
+    { "key": "StateInactive", "hex": "#4F6B8A" },
+    { "key": "StateLocked", "hex": "#6C7A8F" },
+
+    { "key": "BackgroundPanel", "hex": "#F2F6FF" },
+    { "key": "BackgroundPopup", "hex": "#2F6FDB" },
+    { "key": "OverlayDark", "hex": "#000000B3" }
+  ],
+
+  "textStyles": [
+    {
+      "key": "TopBarValue",
+      "fontAssetPath": "Assets/Fonts/Lato-Black SDF_Plain.asset",
+      "fontSize": 50,
+      "color": "#1858A8",
+      "outlineEnabled": false,
+      "outlineColor": "#00000000",
+      "outlineWidth": 0,
+      "shadowEnabled": false,
+      "shadowColor": "#00000000",
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "shadowUseGraphicAlpha": false
+    },
+
+    {
+      "key": "TopBarIconCounter",
+      "fontAssetPath": "Assets/Fonts/Lato-Black SDF_Shadow.asset",
+      "fontSize": 65,
+      "color": "#FFFFFF",
+      "outlineEnabled": false,
+      "outlineColor": "#00000000",
+      "outlineWidth": 0,
+      "shadowEnabled": false,
+      "shadowColor": "#00000000",
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "shadowUseGraphicAlpha": false
+    },
+
+    {
+      "key": "HeadingXL",
+      "fontAssetPath": "Assets/Fonts/Yorkie-SemiBold SDF.asset",
+      "fontSize": 64,
+      "color": "#FFFFFF",
+      "outlineEnabled": true,
+      "outlineColor": "#1E2A3ACC",
+      "outlineWidth": 0.25,
+      "shadowEnabled": true,
+      "shadowColor": "#00000080",
+      "shadowOffsetX": 2,
+      "shadowOffsetY": -2,
+      "shadowUseGraphicAlpha": true
+    },
+
+    {
+      "key": "ButtonPrimary",
+      "fontAssetPath": "Assets/Fonts/Yorkie-SemiBold SDF.asset",
+      "fontSize": 36,
+      "color": "#FFFFFF",
+      "outlineEnabled": true,
+      "outlineColor": "#1E4FA5CC",
+      "outlineWidth": 0.2,
+      "shadowEnabled": false,
+      "shadowColor": "#00000000",
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "shadowUseGraphicAlpha": false
+    },
+
+    {
+      "key": "BodyM",
+      "fontAssetPath": "Assets/Fonts/Lato-Black SDF_Plain.asset",
+      "fontSize": 28,
+      "color": "#1E2A3A",
+      "outlineEnabled": false,
+      "outlineColor": "#00000000",
+      "outlineWidth": 0,
+      "shadowEnabled": false,
+      "shadowColor": "#00000000",
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "shadowUseGraphicAlpha": false
+    }
+  ]
+}
