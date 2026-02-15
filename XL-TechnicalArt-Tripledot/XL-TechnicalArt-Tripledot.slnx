@@ -1,2 +1,5 @@
 ﻿<Solution>
+  <Project Path="MPUIKit.Editor.csproj" />
+  <Project Path="MPUIKit.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
 </Solution>
