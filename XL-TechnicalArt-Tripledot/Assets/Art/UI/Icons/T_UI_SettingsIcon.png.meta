@@ -1,14 +1,10 @@
 fileFormatVersion: 2
-guid: 6b96d6950a9c30743a2e826ee8684ac4
-AssetOrigin:
-  serializedVersion: 1
-  productId: 163041
-  packageName: Modern Procedural UI Kit
-  packageVersion: 1.2.3
-  assetPath: Assets/SubModules/Helper/Plugins/MPUIKit/Runtime/Resources/mpui_default_empty_sprite.png
-  uploadId: 764218
+guid: 6ede724aaabae470f889b9ba67ed68d3
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: -3882967730058292409
+    second: T_UI_SettingsIcon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -50,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -70,9 +66,9 @@ TextureImporter:
   compressionQualitySet: 0
   textureFormatSet: 0
   ignorePngGamma: 0
-  applyGammaDecoding: 1
+  applyGammaDecoding: 0
   swizzle: 50462976
-  cookieLightType: 1
+  cookieLightType: 0
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
@@ -86,7 +82,7 @@ TextureImporter:
     overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
     maxTextureSize: 2048
@@ -99,7 +95,7 @@ TextureImporter:
     overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Android
     maxTextureSize: 2048
@@ -112,15 +108,37 @@ TextureImporter:
     overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: T_UI_SettingsIcon_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 73
+        height: 77
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 743129f1c6dec1ac0800000000000000
+      internalID: -3882967730058292409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 2578ed92ef82c514e8bbd96fb1c68462
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -129,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      T_UI_SettingsIcon_0: -3882967730058292409
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
