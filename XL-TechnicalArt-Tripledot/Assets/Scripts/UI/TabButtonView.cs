@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +20,10 @@ public class TabButtonView : MonoBehaviour
     [SerializeField] private bool ensureButtonRaycastSurface = true;
     [SerializeField] private float selectedIconYOffset = 14f;
     [SerializeField] private bool forceLiftTargetIgnoreLayout = true;
+    [SerializeField] private RectTransform lockedWiggleTarget;
+    [SerializeField] private float lockedWiggleDistance = 18f;
+    [SerializeField] private float lockedWiggleDuration = 0.24f;
+    [SerializeField] private int lockedWiggleVibrato = 10;
     [SerializeField] private bool debugLiftLogs = false;
     [SerializeField] private Color normalIconColor = Color.white;
     [SerializeField] private Color selectedIconColor = Color.white;
@@ -27,6 +32,9 @@ public class TabButtonView : MonoBehaviour
     private LayoutElement _layoutElement;
     private Vector2 _iconLiftBaseAnchoredPosition;
     private bool _hasIconLiftBaseAnchoredPosition;
+    private Tween _lockedWiggleTween;
+    private RectTransform _activeWiggleTarget;
+    private Vector2 _activeWiggleBaseAnchoredPosition;
 
     public RectTransform RectTransform
     {
@@ -45,6 +53,24 @@ public class TabButtonView : MonoBehaviour
     {
         get
         {
+            if (iconTransform != null)
+            {
+                return iconTransform;
+            }
+
+            return RectTransform;
+        }
+    }
+
+    public RectTransform IconFeedbackTransform
+    {
+        get
+        {
+            if (iconImage != null)
+            {
+                return iconImage.rectTransform;
+            }
+
             if (iconTransform != null)
             {
                 return iconTransform;
@@ -97,6 +123,8 @@ public class TabButtonView : MonoBehaviour
         {
             button.onClick.RemoveListener(HandleButtonClicked);
         }
+
+        KillLockedWiggleTween();
     }
 
     public void SetSelected(bool selected)
@@ -129,6 +157,26 @@ public class TabButtonView : MonoBehaviour
         {
             iconImage.color = selected ? selectedIconColor : normalIconColor;
         }
+    }
+
+    public void PlayLockedWiggle()
+    {
+        RectTransform target = ResolveLockedWiggleTarget();
+        if (target == null)
+        {
+            return;
+        }
+
+        KillLockedWiggleTween();
+
+        _activeWiggleTarget = target;
+        _activeWiggleBaseAnchoredPosition = target.anchoredPosition;
+
+        Vector2 punch = new Vector2(lockedWiggleDistance, 0f);
+        _lockedWiggleTween = target
+            .DOPunchAnchorPos(punch, lockedWiggleDuration, lockedWiggleVibrato, 0f)
+            .OnComplete(RestoreLockedWiggleTargetPosition)
+            .OnKill(RestoreLockedWiggleTargetPosition);
     }
 
     private void HandleButtonClicked()
@@ -277,6 +325,43 @@ public class TabButtonView : MonoBehaviour
         }
 
         return null;
+    }
+
+    private RectTransform ResolveLockedWiggleTarget()
+    {
+        if (lockedWiggleTarget != null)
+        {
+            return lockedWiggleTarget;
+        }
+
+        if (iconImage != null)
+        {
+            return iconImage.rectTransform;
+        }
+
+        RectTransform liftTarget = ResolveIconLiftTarget();
+        if (liftTarget != null)
+        {
+            return liftTarget;
+        }
+
+        return RectTransform;
+    }
+
+    private void RestoreLockedWiggleTargetPosition()
+    {
+        if (_activeWiggleTarget == null)
+        {
+            return;
+        }
+
+        _activeWiggleTarget.anchoredPosition = _activeWiggleBaseAnchoredPosition;
+    }
+
+    private void KillLockedWiggleTween()
+    {
+        _lockedWiggleTween?.Kill();
+        _lockedWiggleTween = null;
     }
 
     private void LogLift(string message)

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 public class BottomBarView : MonoBehaviour
@@ -10,8 +12,15 @@ public class BottomBarView : MonoBehaviour
 
     [SerializeField] private List<TabButtonView> tabButtons = new List<TabButtonView>(5);
     [SerializeField] private BottomBarAnimator animator;
+    [SerializeField] private bool closeContentWhenToggledOff = true;
+    [Header("Visibility Toggle Button")]
+    [SerializeField] private Button visibilityToggleButton;
+    [SerializeField] private RectTransform visibilityToggleArrow;
+    [SerializeField] private float visibilityToggleArrowDuration = 0.2f;
+    [SerializeField] private Ease visibilityToggleArrowEase = Ease.OutCubic;
 
     private int _selectedIndex = -1;
+    private Tween _visibilityToggleArrowTween;
 
     public int SelectedIndex => _selectedIndex;
 
@@ -35,10 +44,17 @@ public class BottomBarView : MonoBehaviour
         {
             animator.Initialize(tabButtons);
         }
+
+        SetVisibilityToggleArrowRotation(isBarHidden: animator != null && !animator.IsShown, immediate: true);
     }
 
     private void OnEnable()
     {
+        if (visibilityToggleButton != null)
+        {
+            visibilityToggleButton.onClick.AddListener(ToggleVisibilityFromButton);
+        }
+
         for (int i = 0; i < tabButtons.Count; i++)
         {
             TabButtonView button = tabButtons[i];
@@ -51,6 +67,11 @@ public class BottomBarView : MonoBehaviour
 
     private void OnDisable()
     {
+        if (visibilityToggleButton != null)
+        {
+            visibilityToggleButton.onClick.RemoveListener(ToggleVisibilityFromButton);
+        }
+
         for (int i = 0; i < tabButtons.Count; i++)
         {
             TabButtonView button = tabButtons[i];
@@ -59,6 +80,11 @@ public class BottomBarView : MonoBehaviour
                 button.Clicked -= HandleButtonClicked;
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        _visibilityToggleArrowTween?.Kill();
     }
 
     public void Select(BottomBarContent content)
@@ -81,6 +107,8 @@ public class BottomBarView : MonoBehaviour
         {
             animator.Show(immediate);
         }
+
+        SetVisibilityToggleArrowRotation(isBarHidden: false, immediate: immediate);
     }
 
     public void Hide(bool immediate = false, bool closeContent = true)
@@ -94,12 +122,59 @@ public class BottomBarView : MonoBehaviour
         {
             animator.Hide(immediate);
         }
+
+        SetVisibilityToggleArrowRotation(isBarHidden: true, immediate: immediate);
+    }
+
+    public void ToggleVisibilityFromButton()
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        if (animator.IsShown)
+        {
+            Hide(immediate: false, closeContent: closeContentWhenToggledOff);
+            return;
+        }
+
+        Show(immediate: false);
+    }
+
+    private void SetVisibilityToggleArrowRotation(bool isBarHidden, bool immediate)
+    {
+        if (visibilityToggleArrow == null)
+        {
+            return;
+        }
+
+        Vector3 currentRotation = visibilityToggleArrow.localEulerAngles;
+        Vector3 targetRotation = new Vector3(currentRotation.x, currentRotation.y, isBarHidden ? 180f : 0f);
+
+        if (immediate)
+        {
+            _visibilityToggleArrowTween?.Kill();
+            visibilityToggleArrow.localEulerAngles = targetRotation;
+            return;
+        }
+
+        _visibilityToggleArrowTween?.Kill();
+        _visibilityToggleArrowTween = visibilityToggleArrow
+            .DOLocalRotate(targetRotation, visibilityToggleArrowDuration, RotateMode.Fast)
+            .SetEase(visibilityToggleArrowEase);
     }
 
     private void HandleButtonClicked(TabButtonView clickedButton)
     {
-        if (clickedButton == null || clickedButton.IsLocked)
+        if (clickedButton == null)
         {
+            return;
+        }
+
+        if (clickedButton.IsLocked)
+        {
+            clickedButton.PlayLockedWiggle();
             return;
         }
 

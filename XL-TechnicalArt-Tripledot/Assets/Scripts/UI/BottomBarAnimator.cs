@@ -8,6 +8,7 @@ public class BottomBarAnimator : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private RectTransform barRoot;
+    [SerializeField] private RectTransform barBackgroundRoot;
     [SerializeField] private RectTransform buttonsContainer;
     [SerializeField] private RectTransform selectionHighlight;
 
@@ -37,7 +38,9 @@ public class BottomBarAnimator : MonoBehaviour
 
     [Header("Icon Feedback")]
     [SerializeField] private float iconFeedbackDuration = 0.2f;
-    [SerializeField] private Vector3 iconFeedbackPunch = new Vector3(0.15f, 0.15f, 0f);
+    [SerializeField] private Vector3 iconFeedbackScalePunch = new Vector3(0.12f, 0.12f, 0f);
+    [SerializeField] private float iconFeedbackWiggleDistance = 8f;
+    [SerializeField] private int iconFeedbackWiggleVibrato = 8;
 
     private readonly Dictionary<TabButtonView, float> _baseWidths = new Dictionary<TabButtonView, float>();
     private readonly Dictionary<TabButtonView, Tween> _buttonWidthTweens = new Dictionary<TabButtonView, Tween>();
@@ -50,9 +53,14 @@ public class BottomBarAnimator : MonoBehaviour
     private CanvasGroup _highlightCanvasGroup;
     private Tween _barMoveTween;
     private Tween _barFadeTween;
+    private Tween _barBackgroundMoveTween;
+    private Tween _barBackgroundFadeTween;
     private CanvasGroup _barCanvasGroup;
+    private CanvasGroup _barBackgroundCanvasGroup;
     private Vector2 _barShownAnchoredPosition;
+    private Vector2 _barBackgroundShownAnchoredPosition;
     private bool _barPositionInitialized;
+    private bool _barBackgroundPositionInitialized;
     private bool _isShown = true;
 
     public bool IsShown => _isShown;
@@ -96,6 +104,11 @@ public class BottomBarAnimator : MonoBehaviour
         if (immediate)
         {
             barRoot.anchoredPosition = _barShownAnchoredPosition;
+            if (barBackgroundRoot != null)
+            {
+                barBackgroundRoot.anchoredPosition = _barBackgroundShownAnchoredPosition;
+            }
+
             SetBarAlpha(1f);
             SetBarInteractable(true);
             return;
@@ -106,9 +119,19 @@ public class BottomBarAnimator : MonoBehaviour
             .SetEase(showEase)
             .OnComplete(() => SetBarInteractable(true));
 
+        if (barBackgroundRoot != null)
+        {
+            _barBackgroundMoveTween = barBackgroundRoot.DOAnchorPos(_barBackgroundShownAnchoredPosition, showDuration).SetEase(showEase);
+        }
+
         if (fadeBar && _barCanvasGroup != null)
         {
             _barFadeTween = _barCanvasGroup.DOFade(1f, showDuration).SetEase(showEase);
+        }
+
+        if (fadeBar && _barBackgroundCanvasGroup != null)
+        {
+            _barBackgroundFadeTween = _barBackgroundCanvasGroup.DOFade(1f, showDuration).SetEase(showEase);
         }
     }
 
@@ -124,10 +147,16 @@ public class BottomBarAnimator : MonoBehaviour
         _isShown = false;
 
         Vector2 hiddenPosition = GetBarHiddenAnchoredPosition();
+        Vector2 backgroundHiddenPosition = GetBarBackgroundHiddenAnchoredPosition();
 
         if (immediate)
         {
             barRoot.anchoredPosition = hiddenPosition;
+            if (barBackgroundRoot != null)
+            {
+                barBackgroundRoot.anchoredPosition = backgroundHiddenPosition;
+            }
+
             SetBarAlpha(fadeBar ? 0f : 1f);
             SetBarInteractable(false);
             return;
@@ -136,9 +165,19 @@ public class BottomBarAnimator : MonoBehaviour
         SetBarInteractable(false);
         _barMoveTween = barRoot.DOAnchorPos(hiddenPosition, hideDuration).SetEase(hideEase);
 
+        if (barBackgroundRoot != null)
+        {
+            _barBackgroundMoveTween = barBackgroundRoot.DOAnchorPos(backgroundHiddenPosition, hideDuration).SetEase(hideEase);
+        }
+
         if (fadeBar && _barCanvasGroup != null)
         {
             _barFadeTween = _barCanvasGroup.DOFade(0f, hideDuration).SetEase(hideEase);
+        }
+
+        if (fadeBar && _barBackgroundCanvasGroup != null)
+        {
+            _barBackgroundFadeTween = _barBackgroundCanvasGroup.DOFade(0f, hideDuration).SetEase(hideEase);
         }
     }
 
@@ -162,6 +201,10 @@ public class BottomBarAnimator : MonoBehaviour
             {
                 selectionHighlight.anchoredPosition = targetPosition;
                 SetRectWidth(selectionHighlight, targetWidth);
+
+                Vector3 scale = selectionHighlight.localScale;
+                scale.y = 0f;
+                selectionHighlight.localScale = scale;
 
                 _highlightScaleTween = selectionHighlight.DOScaleY(1f, firstSelectPopDuration).SetEase(highlightPopEase);
 
@@ -197,15 +240,34 @@ public class BottomBarAnimator : MonoBehaviour
 
     public void AnimateClose(TabButtonView deselectedButton)
     {
+        EnsureLayoutUpToDate();
+
         if (selectionHighlight != null)
         {
             KillHighlightTweens();
 
-            _highlightScaleTween = selectionHighlight.DOScaleY(0f, firstSelectPopDuration).SetEase(Ease.InCubic);
-
             if (fadeHighlight && _highlightCanvasGroup != null)
             {
-                _highlightFadeTween = _highlightCanvasGroup.DOFade(0f, firstSelectPopDuration).SetEase(Ease.InCubic);
+                _highlightFadeTween = _highlightCanvasGroup
+                    .DOFade(0f, firstSelectPopDuration)
+                    .SetEase(Ease.InCubic)
+                    .OnComplete(() =>
+                    {
+                        if (selectionHighlight == null)
+                        {
+                            return;
+                        }
+
+                        Vector3 hiddenScale = selectionHighlight.localScale;
+                        hiddenScale.y = 0f;
+                        selectionHighlight.localScale = hiddenScale;
+                    });
+            }
+            else
+            {
+                Vector3 hiddenScale = selectionHighlight.localScale;
+                hiddenScale.y = 0f;
+                selectionHighlight.localScale = hiddenScale;
             }
         }
 
@@ -312,7 +374,7 @@ public class BottomBarAnimator : MonoBehaviour
 
     private void AnimateIconFeedback(TabButtonView button)
     {
-        RectTransform icon = button.IconTransform;
+        RectTransform icon = button.IconFeedbackTransform;
         if (icon == null)
         {
             return;
@@ -324,8 +386,34 @@ public class BottomBarAnimator : MonoBehaviour
         }
 
         icon.localScale = Vector3.one;
-        Tween tween = icon.DOPunchScale(iconFeedbackPunch, iconFeedbackDuration, 8, 0.8f);
-        _iconTweens[button] = tween;
+
+        Vector2 baseAnchoredPosition = icon.anchoredPosition;
+        Sequence sequence = DOTween.Sequence();
+
+        sequence.Join(icon.DOPunchScale(iconFeedbackScalePunch, iconFeedbackDuration, 8, 0.8f));
+
+        if (iconFeedbackWiggleDistance > 0f)
+        {
+            Vector2 wigglePunch = new Vector2(iconFeedbackWiggleDistance, 0f);
+            sequence.Join(icon.DOPunchAnchorPos(wigglePunch, iconFeedbackDuration, iconFeedbackWiggleVibrato, 0f));
+        }
+
+        sequence.OnComplete(() =>
+        {
+            if (icon != null)
+            {
+                icon.anchoredPosition = baseAnchoredPosition;
+            }
+        });
+        sequence.OnKill(() =>
+        {
+            if (icon != null)
+            {
+                icon.anchoredPosition = baseAnchoredPosition;
+            }
+        });
+
+        _iconTweens[button] = sequence;
     }
 
     private float GetTargetButtonWidth(TabButtonView button, bool selected)
@@ -341,8 +429,13 @@ public class BottomBarAnimator : MonoBehaviour
 
     private float GetHighlightTargetWidth(TabButtonView button)
     {
-        float selectedButtonWidth = GetTargetButtonWidth(button, true);
-        float targetWidth = selectedButtonWidth - (highlightHorizontalInset * 2f);
+        return GetHighlightTargetWidth(button, true);
+    }
+
+    private float GetHighlightTargetWidth(TabButtonView button, bool selected)
+    {
+        float buttonWidth = GetTargetButtonWidth(button, selected);
+        float targetWidth = buttonWidth - (highlightHorizontalInset * 2f);
         return Mathf.Max(highlightMinWidth, targetWidth);
     }
 
@@ -384,6 +477,31 @@ public class BottomBarAnimator : MonoBehaviour
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(buttonsContainer);
+        return projectedPosition;
+    }
+
+    private Vector2 GetProjectedHighlightTargetPositionOnClose(TabButtonView deselectedButton)
+    {
+        if (deselectedButton == null)
+        {
+            return selectionHighlight != null ? selectionHighlight.anchoredPosition : Vector2.zero;
+        }
+
+        LayoutElement deselectedLayout = deselectedButton.LayoutElement;
+        if (deselectedLayout == null)
+        {
+            return GetHighlightTargetPosition(deselectedButton.RectTransform);
+        }
+
+        float deselectedOriginalPreferred = deselectedLayout.preferredWidth;
+        deselectedLayout.preferredWidth = GetTargetButtonWidth(deselectedButton, false);
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(buttonsContainer);
+        Vector2 projectedPosition = GetHighlightTargetPosition(deselectedButton.RectTransform);
+
+        deselectedLayout.preferredWidth = deselectedOriginalPreferred;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(buttonsContainer);
+
         return projectedPosition;
     }
 
@@ -445,31 +563,67 @@ public class BottomBarAnimator : MonoBehaviour
             _barPositionInitialized = true;
         }
 
+        if (barBackgroundRoot == null && barRoot.parent != null)
+        {
+            Transform sibling = barRoot.parent.Find("UI_BottomBarBackground");
+            if (sibling != null)
+            {
+                barBackgroundRoot = sibling as RectTransform;
+            }
+        }
+
         _barCanvasGroup = barRoot.GetComponent<CanvasGroup>();
         if (_barCanvasGroup == null)
         {
             _barCanvasGroup = barRoot.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        if (barBackgroundRoot != null)
+        {
+            if (!_barBackgroundPositionInitialized)
+            {
+                _barBackgroundShownAnchoredPosition = barBackgroundRoot.anchoredPosition;
+                _barBackgroundPositionInitialized = true;
+            }
+
+            _barBackgroundCanvasGroup = barBackgroundRoot.GetComponent<CanvasGroup>();
+            if (_barBackgroundCanvasGroup == null)
+            {
+                _barBackgroundCanvasGroup = barBackgroundRoot.gameObject.AddComponent<CanvasGroup>();
+            }
         }
     }
 
     private Vector2 GetBarHiddenAnchoredPosition()
     {
         Vector2 hiddenPosition = _barShownAnchoredPosition;
-        hiddenPosition.y -= GetBarHideDistance();
+        hiddenPosition.y -= GetBarHideDistance(barRoot);
         return hiddenPosition;
     }
 
-    private float GetBarHideDistance()
+    private Vector2 GetBarBackgroundHiddenAnchoredPosition()
     {
-        if (barRoot == null)
+        if (barBackgroundRoot == null)
+        {
+            return Vector2.zero;
+        }
+
+        Vector2 hiddenPosition = _barBackgroundShownAnchoredPosition;
+        hiddenPosition.y -= GetBarHideDistance(barBackgroundRoot);
+        return hiddenPosition;
+    }
+
+    private float GetBarHideDistance(RectTransform targetRoot)
+    {
+        if (targetRoot == null)
         {
             return hiddenExtraOffset;
         }
 
-        float barHeight = barRoot.rect.height;
+        float barHeight = targetRoot.rect.height;
         if (barHeight <= 0f)
         {
-            barHeight = Mathf.Abs(barRoot.sizeDelta.y);
+            barHeight = Mathf.Abs(targetRoot.sizeDelta.y);
         }
 
         return barHeight + hiddenExtraOffset;
@@ -479,27 +633,52 @@ public class BottomBarAnimator : MonoBehaviour
     {
         if (!fadeBar || _barCanvasGroup == null)
         {
-            return;
+            if (!fadeBar)
+            {
+                return;
+            }
         }
 
-        _barCanvasGroup.alpha = alpha;
+        if (_barCanvasGroup != null)
+        {
+            _barCanvasGroup.alpha = alpha;
+        }
+
+        if (_barBackgroundCanvasGroup != null)
+        {
+            _barBackgroundCanvasGroup.alpha = alpha;
+        }
     }
 
     private void SetBarInteractable(bool interactable)
     {
         if (_barCanvasGroup == null)
         {
-            return;
+            if (_barBackgroundCanvasGroup == null)
+            {
+                return;
+            }
         }
 
-        _barCanvasGroup.interactable = interactable;
-        _barCanvasGroup.blocksRaycasts = interactable;
+        if (_barCanvasGroup != null)
+        {
+            _barCanvasGroup.interactable = interactable;
+            _barCanvasGroup.blocksRaycasts = interactable;
+        }
+
+        if (_barBackgroundCanvasGroup != null)
+        {
+            _barBackgroundCanvasGroup.interactable = interactable;
+            _barBackgroundCanvasGroup.blocksRaycasts = interactable;
+        }
     }
 
     private void KillBarTweens()
     {
         _barMoveTween?.Kill();
         _barFadeTween?.Kill();
+        _barBackgroundMoveTween?.Kill();
+        _barBackgroundFadeTween?.Kill();
     }
 
     private void OnDestroy()

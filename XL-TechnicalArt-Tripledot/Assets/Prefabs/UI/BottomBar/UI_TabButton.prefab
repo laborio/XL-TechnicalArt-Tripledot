@@ -276,6 +276,10 @@ MonoBehaviour:
   ensureButtonRaycastSurface: 1
   selectedIconYOffset: 48
   forceLiftTargetIgnoreLayout: 1
+  lockedWiggleTarget: {fileID: 0}
+  lockedWiggleDistance: 48
+  lockedWiggleDuration: 0.5
+  lockedWiggleVibrato: 10
   debugLiftLogs: 1
   normalIconColor: {r: 1, g: 1, b: 1, a: 1}
   selectedIconColor: {r: 1, g: 1, b: 1, a: 1}
