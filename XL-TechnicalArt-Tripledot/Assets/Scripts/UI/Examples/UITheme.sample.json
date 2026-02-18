@@ -1,10 +1,12 @@
 {
   "colors": [
     { "key": "Primary", "hex": "#2F6FDB" },
-    { "key": "PrimaryDark", "hex": "#1E4FA5" },
+    { "key": "PrimaryDark", "hex": "06274F" },
 
-    { "key": "Accent", "hex": "#62E043" },
-    { "key": "AccentAlt", "hex": "#FFC83D" },
+    { "key": "Secondary", "hex": "03AEF6" },
+
+    { "key": "Accent Green", "hex": "#62E043" },
+    { "key": "Accent Yellow", "hex": "#FFC83D" },
 
     { "key": "CurrencyCoin", "hex": "#FFC83D" },
     { "key": "CurrencyHeart", "hex": "#FF4B6E" },

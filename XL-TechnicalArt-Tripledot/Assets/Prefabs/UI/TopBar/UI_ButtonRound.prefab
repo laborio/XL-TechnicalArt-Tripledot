@@ -247,7 +247,7 @@ GameObject:
   - component: {fileID: 291564206171759220}
   - component: {fileID: 4443701425613011662}
   m_Layer: 5
-  m_Name: UI_RoundButton
+  m_Name: UI_ButtonRound
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -342,7 +342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MPUIKit::MPUIKIT.MPImage
   m_Material: {fileID: 0}
-  m_Color: {r: 0.38431373, g: 0.8784314, b: 0.2627451, a: 1}
+  m_Color: {r: 0.18431373, g: 0.43529412, b: 0.85882354, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -470,7 +470,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIThemeImage
   theme: {fileID: 11400000, guid: 91a7c69ac39514125a99eaa9489d1058, type: 2}
   colorToken: 5
-  customColorKey: Accent
+  customColorKey: Primary
 --- !u!1 &6843523607019210629
 GameObject:
   m_ObjectHideFlags: 0
