@@ -1,6 +1,7 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(RectTransform))]
@@ -29,6 +30,7 @@ public class BasePopupView : MonoBehaviour
     [Header("Behavior")]
     [SerializeField] private bool hideOnAwake = true;
     [SerializeField] private bool deactivateOnClose = true;
+    [SerializeField] private bool forceLayoutRebuildOnOpen = true;
 
     private PopupManager _owner;
     private Tween _openTween;
@@ -78,6 +80,7 @@ public class BasePopupView : MonoBehaviour
         EnsureInitialized();
 
         gameObject.SetActive(true);
+        RebuildLayoutNow();
         StopIdleAnimation();
         KillOpenCloseTweens();
 
@@ -277,6 +280,18 @@ public class BasePopupView : MonoBehaviour
         _closeTween?.Kill();
         _openTween = null;
         _closeTween = null;
+    }
+
+    private void RebuildLayoutNow()
+    {
+        if (!forceLayoutRebuildOnOpen || popupRoot == null)
+        {
+            return;
+        }
+
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(popupRoot);
+        Canvas.ForceUpdateCanvases();
     }
 
 #if UNITY_EDITOR
