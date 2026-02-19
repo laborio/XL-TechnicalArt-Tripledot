@@ -246,7 +246,7 @@ GameObject:
   - component: {fileID: 83297741088644361}
   - component: {fileID: 6745723619480201899}
   - component: {fileID: 7867814153244539254}
-  - component: {fileID: -4201432357828611341}
+  - component: {fileID: 6288333061620738569}
   m_Layer: 0
   m_Name: UI_ButtonRect
   m_TagString: Untagged
@@ -274,7 +274,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 704, y: 210}
+  m_SizeDelta: {x: 478.95, y: 78.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7028827789912119264
 CanvasRenderer:
@@ -470,20 +470,27 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 1, y: -8}
   m_UseGraphicAlpha: 1
---- !u!114 &-4201432357828611341
+--- !u!114 &6288333061620738569
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3914139622131687045}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e57c0da787e34549844ecbbf2c0b7bb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
-  m_HorizontalFit: 2
-  m_VerticalFit: 2
+  m_EditorClassIdentifier: Assembly-CSharp::UIButtonAutoWidthToText
+  targetRect: {fileID: 8022183772880081817}
+  label: {fileID: 9097569189847858969}
+  horizontalPadding: 0
+  verticalPadding: 0
+  minWidth: 0
+  minHeight: 0
+  maxWidth: 0
+  maxHeight: 0
+  updateContinuously: 1
 --- !u!1001 &7519137290117095158
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -514,19 +521,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9115664605780094568, guid: 7d43a2a9c164d421daa9d788c09e71b2, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9115664605780094568, guid: 7d43a2a9c164d421daa9d788c09e71b2, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9115664605780094568, guid: 7d43a2a9c164d421daa9d788c09e71b2, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9115664605780094568, guid: 7d43a2a9c164d421daa9d788c09e71b2, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9115664605780094568, guid: 7d43a2a9c164d421daa9d788c09e71b2, type: 3}
       propertyPath: m_SizeDelta.x
@@ -594,3 +601,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 9115664605780094568, guid: 7d43a2a9c164d421daa9d788c09e71b2, type: 3}
   m_PrefabInstance: {fileID: 7519137290117095158}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &9097569189847858969 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1592120860921684463, guid: 7d43a2a9c164d421daa9d788c09e71b2, type: 3}
+  m_PrefabInstance: {fileID: 7519137290117095158}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI

@@ -24,6 +24,14 @@ PrefabInstance:
       propertyPath: customStyleKey
       value: ButtonPrimary_L
       objectReference: {fileID: 0}
+    - target: {fileID: 6288333061620738569, guid: c773b7b55c7b6417b97cba114e9dee29, type: 3}
+      propertyPath: maxWidth
+      value: 800
+      objectReference: {fileID: 0}
+    - target: {fileID: 6288333061620738569, guid: c773b7b55c7b6417b97cba114e9dee29, type: 3}
+      propertyPath: minHeight
+      value: 375
+      objectReference: {fileID: 0}
     - target: {fileID: 8022183772880081817, guid: c773b7b55c7b6417b97cba114e9dee29, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
