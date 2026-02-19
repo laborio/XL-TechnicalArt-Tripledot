@@ -1,6 +1,7 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -20,11 +21,16 @@ public class PopupBackdropView : MonoBehaviour
     [SerializeField] private Ease showEase = Ease.OutCubic;
     [SerializeField] private Ease hideEase = Ease.InCubic;
 
+    [Header("Post FX")]
+    [SerializeField] private Volume postFxVolume;
+    [SerializeField] private float visiblePostFxWeight = 1f;
+
     [Header("Behavior")]
     [SerializeField] private bool hideOnAwake = true;
     [SerializeField] private bool deactivateOnHide = true;
 
     private Tween _fadeTween;
+    private Tween _volumeTween;
 
     private void Awake()
     {
@@ -57,6 +63,8 @@ public class PopupBackdropView : MonoBehaviour
 
         _fadeTween?.Kill();
         _fadeTween = null;
+        _volumeTween?.Kill();
+        _volumeTween = null;
     }
 
     public void Show(bool immediate = false)
@@ -71,6 +79,8 @@ public class PopupBackdropView : MonoBehaviour
 
         _fadeTween?.Kill();
         _fadeTween = null;
+        _volumeTween?.Kill();
+        _volumeTween = null;
 
         SetInteractable(false);
 
@@ -81,9 +91,12 @@ public class PopupBackdropView : MonoBehaviour
                 canvasGroup.alpha = visibleAlpha;
             }
 
+            SetPostFxWeight(visiblePostFxWeight, disableWhenZero: false);
             SetInteractable(true);
             return;
         }
+
+        TweenPostFxWeight(visiblePostFxWeight, showDuration, showEase);
 
         if (canvasGroup == null)
         {
@@ -104,6 +117,8 @@ public class PopupBackdropView : MonoBehaviour
 
         _fadeTween?.Kill();
         _fadeTween = null;
+        _volumeTween?.Kill();
+        _volumeTween = null;
 
         SetInteractable(false);
 
@@ -118,12 +133,16 @@ public class PopupBackdropView : MonoBehaviour
             return;
         }
 
+        TweenPostFxWeight(0f, hideDuration, hideEase);
+
         if (canvasGroup == null)
         {
             if (blurRoot != null)
             {
                 blurRoot.SetActive(false);
             }
+
+            SetPostFxWeight(0f, disableWhenZero: true);
 
             if (deactivateOnHide)
             {
@@ -184,7 +203,51 @@ public class PopupBackdropView : MonoBehaviour
             blurRoot.SetActive(false);
         }
 
+        SetPostFxWeight(0f, disableWhenZero: true);
         SetInteractable(false);
+    }
+
+    private void TweenPostFxWeight(float targetWeight, float duration, Ease ease)
+    {
+        if (postFxVolume == null)
+        {
+            return;
+        }
+
+        _volumeTween?.Kill();
+        _volumeTween = null;
+
+        if (duration <= 0f)
+        {
+            SetPostFxWeight(targetWeight, disableWhenZero: targetWeight <= 0f);
+            return;
+        }
+
+        postFxVolume.enabled = true;
+        _volumeTween = DOTween.To(
+                () => postFxVolume.weight,
+                value => postFxVolume.weight = value,
+                Mathf.Clamp01(targetWeight),
+                duration)
+            .SetEase(ease)
+            .OnComplete(() =>
+            {
+                if (postFxVolume != null && targetWeight <= 0f)
+                {
+                    postFxVolume.enabled = false;
+                }
+            });
+    }
+
+    private void SetPostFxWeight(float weight, bool disableWhenZero)
+    {
+        if (postFxVolume == null)
+        {
+            return;
+        }
+
+        postFxVolume.weight = Mathf.Clamp01(weight);
+        postFxVolume.enabled = !disableWhenZero || postFxVolume.weight > 0f;
     }
 
     private void SetInteractable(bool interactable)
@@ -210,6 +273,7 @@ public class PopupBackdropView : MonoBehaviour
         {
             clickCatcherButton = GetComponent<Button>();
         }
+
     }
 #endif
 }
