@@ -7,7 +7,7 @@ using UnityEditor;
 [ExecuteAlways]
 [DisallowMultipleComponent]
 [RequireComponent(typeof(RectTransform))]
-public class UIButtonAutoWidthToText : MonoBehaviour
+public class UIButtonContentSizeFitter : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private RectTransform targetRect;
