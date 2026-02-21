@@ -50,7 +50,7 @@
       "key": "TopBarIconCounter",
       "fontAssetPath": "Assets/Fonts/Lato-Black SDF_Shadow.asset",
       "fontSize": 65,
-      "color": "#FFFFFF",
+      "color": "#FFC83D",
       "outlineEnabled": false,
       "outlineColor": "#00000000",
       "outlineWidth": 0,
@@ -61,8 +61,23 @@
       "shadowUseGraphicAlpha": false
     },
 
+      {
+      "key": "Heading_XXL",
+      "fontAssetPath": "Assets/Fonts/Yorkie-SemiBold SDF.asset",
+      "fontSize": 180,
+      "color": "#FFFFFF",
+      "outlineEnabled": true,
+      "outlineColor": "#1E2A3ACC",
+      "outlineWidth": 0.9,
+      "shadowEnabled": true,
+      "shadowColor": "#00000080",
+      "shadowOffsetX": 0,
+      "shadowOffsetY": -5,
+      "shadowUseGraphicAlpha": true
+    },
+
     {
-      "key": "HeadingXL",
+      "key": "Heading_XL",
       "fontAssetPath": "Assets/Fonts/Lato-Black SDF_Shadow.asset",
       "fontSize": 150,
       "color": "#FFFFFF",

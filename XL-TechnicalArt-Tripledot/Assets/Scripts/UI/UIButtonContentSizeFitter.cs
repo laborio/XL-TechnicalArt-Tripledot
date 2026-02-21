@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -12,6 +13,7 @@ public class UIButtonContentSizeFitter : MonoBehaviour
     [Header("References")]
     [SerializeField] private RectTransform targetRect;
     [SerializeField] private TMP_Text label;
+    [SerializeField] private RectTransform contentRect;
 
     [Header("Sizing")]
     [SerializeField] private float horizontalPadding = 48f;
@@ -28,6 +30,8 @@ public class UIButtonContentSizeFitter : MonoBehaviour
     private string _lastText = string.Empty;
     private float _lastFontSize = -1f;
     private bool _lastEnabled;
+    private float _lastContentWidth = -1f;
+    private float _lastContentHeight = -1f;
 #if UNITY_EDITOR
     private bool _pendingEditorRefresh;
 #endif
@@ -56,16 +60,20 @@ public class UIButtonContentSizeFitter : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!updateContinuously || label == null)
+        if (!updateContinuously)
         {
             return;
         }
 
-        bool enabledStateChanged = _lastEnabled != label.enabled;
-        bool textChanged = _lastText != label.text;
-        bool fontSizeChanged = !Mathf.Approximately(_lastFontSize, label.fontSize);
+        bool enabledStateChanged = label != null && _lastEnabled != label.enabled;
+        bool textChanged = label != null && _lastText != label.text;
+        bool fontSizeChanged = label != null && !Mathf.Approximately(_lastFontSize, label.fontSize);
+        Vector2 contentSize = GetContentSize(contentRect);
+        bool contentRectChanged = contentRect != null &&
+            (!Mathf.Approximately(_lastContentWidth, contentSize.x) ||
+             !Mathf.Approximately(_lastContentHeight, contentSize.y));
 
-        if (!enabledStateChanged && !textChanged && !fontSizeChanged)
+        if (!enabledStateChanged && !textChanged && !fontSizeChanged && !contentRectChanged)
         {
             return;
         }
@@ -77,23 +85,36 @@ public class UIButtonContentSizeFitter : MonoBehaviour
     public void RefreshSize()
     {
         CacheReferences();
-        if (targetRect == null || label == null)
+        if (targetRect == null || (label == null && contentRect == null))
         {
             return;
         }
 
-        label.ForceMeshUpdate();
-        float preferredWidth = label.GetPreferredValues(label.text, Mathf.Infinity, Mathf.Infinity).x;
+        float preferredWidth = 0f;
+        if (label != null)
+        {
+            label.ForceMeshUpdate();
+            preferredWidth = label.GetPreferredValues(label.text, Mathf.Infinity, Mathf.Infinity).x;
+        }
 
-        float width = Mathf.Max(minWidth, preferredWidth + horizontalPadding);
+        Vector2 contentSize = GetContentSize(contentRect);
+        float widthSource = Mathf.Max(preferredWidth, contentSize.x);
+
+        float width = Mathf.Max(minWidth, widthSource + horizontalPadding);
         if (maxWidth > 0f)
         {
             width = Mathf.Min(width, maxWidth);
         }
 
         float availableTextWidth = Mathf.Max(0f, width - horizontalPadding);
-        float preferredHeight = label.GetPreferredValues(label.text, availableTextWidth, Mathf.Infinity).y;
-        float height = Mathf.Max(minHeight, preferredHeight + verticalPadding);
+        float preferredHeight = 0f;
+        if (label != null)
+        {
+            preferredHeight = label.GetPreferredValues(label.text, availableTextWidth, Mathf.Infinity).y;
+        }
+
+        float heightSource = Mathf.Max(preferredHeight, contentSize.y);
+        float height = Mathf.Max(minHeight, heightSource + verticalPadding);
         if (maxHeight > 0f)
         {
             height = Mathf.Min(height, maxHeight);
@@ -121,6 +142,35 @@ public class UIButtonContentSizeFitter : MonoBehaviour
 #endif
 
         RefreshSize();
+    }
+
+    private static Vector2 GetContentSize(RectTransform rect)
+    {
+        if (rect == null)
+        {
+            return Vector2.zero;
+        }
+
+        float width = rect.rect.width;
+        float height = rect.rect.height;
+
+        float preferredWidth = LayoutUtility.GetPreferredSize(rect, 0);
+        float preferredHeight = LayoutUtility.GetPreferredSize(rect, 1);
+        if (preferredWidth > 0f)
+        {
+            width = Mathf.Max(width, preferredWidth);
+        }
+
+        if (preferredHeight > 0f)
+        {
+            height = Mathf.Max(height, preferredHeight);
+        }
+
+        Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(rect);
+        width = Mathf.Max(width, bounds.size.x);
+        height = Mathf.Max(height, bounds.size.y);
+
+        return new Vector2(width, height);
     }
 
 #if UNITY_EDITOR
@@ -164,12 +214,17 @@ public class UIButtonContentSizeFitter : MonoBehaviour
             _lastText = string.Empty;
             _lastFontSize = -1f;
             _lastEnabled = false;
-            return;
+        }
+        else
+        {
+            _lastText = label.text;
+            _lastFontSize = label.fontSize;
+            _lastEnabled = label.enabled;
         }
 
-        _lastText = label.text;
-        _lastFontSize = label.fontSize;
-        _lastEnabled = label.enabled;
+        Vector2 contentSize = GetContentSize(contentRect);
+        _lastContentWidth = contentSize.x;
+        _lastContentHeight = contentSize.y;
     }
 
 #if UNITY_EDITOR
