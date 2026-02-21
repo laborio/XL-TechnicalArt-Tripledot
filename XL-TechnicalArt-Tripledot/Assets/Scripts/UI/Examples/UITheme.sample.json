@@ -50,7 +50,7 @@
       "key": "TopBarIconCounter",
       "fontAssetPath": "Assets/Fonts/Lato-Black SDF_Shadow.asset",
       "fontSize": 65,
-      "color": "#FFC83D",
+      "color": "#FFFFFF",
       "outlineEnabled": false,
       "outlineColor": "#00000000",
       "outlineWidth": 0,

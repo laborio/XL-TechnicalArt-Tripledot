@@ -48,7 +48,7 @@ Material:
     m_Floats:
     - _Fullscreen_DepthWrite: 0
     - _Gap: 0.5
-    - _PanningSpeed: -0.1
+    - _PanningSpeed: -0.2
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Rotation: 45

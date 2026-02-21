@@ -2,6 +2,7 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -23,7 +24,8 @@ public class PopupBackdropView : MonoBehaviour
 
     [Header("Post FX")]
     [SerializeField] private Volume postFxVolume;
-    [SerializeField] private float visiblePostFxWeight = 1f;
+    [SerializeField] private float sharpFocusDistance = 10f;
+    [SerializeField] private float blurredFocusDistance = 0.1f;
 
     [Header("Behavior")]
     [SerializeField] private bool hideOnAwake = true;
@@ -91,12 +93,12 @@ public class PopupBackdropView : MonoBehaviour
                 canvasGroup.alpha = visibleAlpha;
             }
 
-            SetPostFxWeight(visiblePostFxWeight, disableWhenZero: false);
+            SetPostFxFocusDistance(blurredFocusDistance);
             SetInteractable(true);
             return;
         }
 
-        TweenPostFxWeight(visiblePostFxWeight, showDuration, showEase);
+        TweenPostFxFocusDistance(blurredFocusDistance, showDuration, showEase);
 
         if (canvasGroup == null)
         {
@@ -133,7 +135,7 @@ public class PopupBackdropView : MonoBehaviour
             return;
         }
 
-        TweenPostFxWeight(0f, hideDuration, hideEase);
+        TweenPostFxFocusDistance(sharpFocusDistance, hideDuration, hideEase);
 
         if (canvasGroup == null)
         {
@@ -142,7 +144,7 @@ public class PopupBackdropView : MonoBehaviour
                 blurRoot.SetActive(false);
             }
 
-            SetPostFxWeight(0f, disableWhenZero: true);
+            SetPostFxFocusDistance(sharpFocusDistance);
 
             if (deactivateOnHide)
             {
@@ -203,13 +205,13 @@ public class PopupBackdropView : MonoBehaviour
             blurRoot.SetActive(false);
         }
 
-        SetPostFxWeight(0f, disableWhenZero: true);
+        SetPostFxFocusDistance(sharpFocusDistance);
         SetInteractable(false);
     }
 
-    private void TweenPostFxWeight(float targetWeight, float duration, Ease ease)
+    private void TweenPostFxFocusDistance(float targetFocusDistance, float duration, Ease ease)
     {
-        if (postFxVolume == null)
+        if (!TryGetDepthOfField(out DepthOfField depthOfField))
         {
             return;
         }
@@ -217,37 +219,63 @@ public class PopupBackdropView : MonoBehaviour
         _volumeTween?.Kill();
         _volumeTween = null;
 
+        float clampedTargetFocusDistance = Mathf.Max(0.001f, targetFocusDistance);
         if (duration <= 0f)
         {
-            SetPostFxWeight(targetWeight, disableWhenZero: targetWeight <= 0f);
+            SetPostFxFocusDistance(clampedTargetFocusDistance);
             return;
         }
 
-        postFxVolume.enabled = true;
+        SetPostFxVolumeActive();
         _volumeTween = DOTween.To(
-                () => postFxVolume.weight,
-                value => postFxVolume.weight = value,
-                Mathf.Clamp01(targetWeight),
+                () => depthOfField.focusDistance.value,
+                value => depthOfField.focusDistance.value = Mathf.Max(0.001f, value),
+                clampedTargetFocusDistance,
                 duration)
-            .SetEase(ease)
-            .OnComplete(() =>
-            {
-                if (postFxVolume != null && targetWeight <= 0f)
-                {
-                    postFxVolume.enabled = false;
-                }
-            });
+            .SetEase(ease);
     }
 
-    private void SetPostFxWeight(float weight, bool disableWhenZero)
+    private void SetPostFxFocusDistance(float focusDistance)
+    {
+        if (!TryGetDepthOfField(out DepthOfField depthOfField))
+        {
+            return;
+        }
+
+        SetPostFxVolumeActive();
+        depthOfField.focusDistance.value = Mathf.Max(0.001f, focusDistance);
+    }
+
+    private bool TryGetDepthOfField(out DepthOfField depthOfField)
+    {
+        depthOfField = null;
+        if (postFxVolume == null)
+        {
+            return false;
+        }
+
+        VolumeProfile profile = postFxVolume.profile;
+        if (profile == null || !profile.TryGet(out depthOfField))
+        {
+            return false;
+        }
+
+        depthOfField.active = true;
+        depthOfField.mode.overrideState = true;
+        depthOfField.mode.value = DepthOfFieldMode.Bokeh;
+        depthOfField.focusDistance.overrideState = true;
+        return true;
+    }
+
+    private void SetPostFxVolumeActive()
     {
         if (postFxVolume == null)
         {
             return;
         }
 
-        postFxVolume.weight = Mathf.Clamp01(weight);
-        postFxVolume.enabled = !disableWhenZero || postFxVolume.weight > 0f;
+        postFxVolume.enabled = true;
+        postFxVolume.weight = 1f;
     }
 
     private void SetInteractable(bool interactable)

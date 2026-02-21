@@ -6,6 +6,7 @@ public class PopupManager : MonoBehaviour
     [SerializeField] private PopupBackdropView backdrop;
     [SerializeField] private bool closeOnBackdropClick = true;
     [SerializeField] private bool closeCurrentImmediatelyWhenOpeningAnother = true;
+    [SerializeField] private bool activatePopupHierarchyWhenOpening = true;
 
     private BasePopupView _currentPopup;
 
@@ -58,6 +59,11 @@ public class PopupManager : MonoBehaviour
             return;
         }
 
+        if (activatePopupHierarchyWhenOpening)
+        {
+            ActivateHierarchyForPopup(popup);
+        }
+
         if (_currentPopup == popup && popup.IsOpen)
         {
             return;
@@ -81,6 +87,37 @@ public class PopupManager : MonoBehaviour
         }
 
         _currentPopup.Open(immediate);
+    }
+
+    private void ActivateHierarchyForPopup(BasePopupView popup)
+    {
+        ActivateTransformHierarchy(popup.transform);
+
+        if (backdrop != null)
+        {
+            ActivateTransformHierarchy(backdrop.transform);
+        }
+    }
+
+    private void ActivateTransformHierarchy(Transform leaf)
+    {
+        Transform current = leaf;
+        while (current != null)
+        {
+            GameObject currentObject = current.gameObject;
+            if (!currentObject.activeSelf)
+            {
+                currentObject.SetActive(true);
+            }
+
+            Canvas canvas = currentObject.GetComponent<Canvas>();
+            if (canvas != null && !canvas.enabled)
+            {
+                canvas.enabled = true;
+            }
+
+            current = current.parent;
+        }
     }
 
     public void CloseCurrent()

@@ -84,3 +84,5 @@ crashlytics-build.properties
 
 # Auto-generated playmode-test scenes
 /XL-TechnicalArt-Tripledot/Assets/InitTestScene*.unity*
+*.cpp
+*.dll

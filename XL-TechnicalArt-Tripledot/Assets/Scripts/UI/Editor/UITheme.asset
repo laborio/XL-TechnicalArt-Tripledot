@@ -70,7 +70,7 @@ MonoBehaviour:
     style:
       fontAsset: {fileID: 11400000, guid: b6b657a5607dd40b89eb748b04eb525b, type: 2}
       fontSize: 65
-      color: {r: 1, g: 0.78431374, b: 0.23921569, a: 1}
+      color: {r: 1, g: 1, b: 1, a: 1}
       outlineEnabled: 0
       outlineColor: {r: 0, g: 0, b: 0, a: 0}
       outlineWidth: 0
