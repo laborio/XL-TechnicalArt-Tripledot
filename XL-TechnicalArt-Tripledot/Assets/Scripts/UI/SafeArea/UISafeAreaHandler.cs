@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(RectTransform))]
-public class SafeAreaHandler : MonoBehaviour
+public class UISafeAreaHandler : MonoBehaviour
 {
     private RectTransform _rectTransform;
     private Rect _lastSafeArea;

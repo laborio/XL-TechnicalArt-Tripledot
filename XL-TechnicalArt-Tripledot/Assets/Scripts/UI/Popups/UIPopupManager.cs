@@ -1,16 +1,16 @@
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public class PopupManager : MonoBehaviour
+public class UIPopupManager : MonoBehaviour
 {
-    [SerializeField] private PopupBackdropView backdrop;
+    [SerializeField] private UIPopupBackdropView backdrop;
     [SerializeField] private bool closeOnBackdropClick = true;
     [SerializeField] private bool closeCurrentImmediatelyWhenOpeningAnother = true;
     [SerializeField] private bool activatePopupHierarchyWhenOpening = true;
 
-    private BasePopupView _currentPopup;
+    private UIBasePopupView _currentPopup;
 
-    public BasePopupView CurrentPopup => _currentPopup;
+    public UIBasePopupView CurrentPopup => _currentPopup;
 
     private void Awake()
     {
@@ -42,17 +42,17 @@ public class PopupManager : MonoBehaviour
         }
     }
 
-    public void OpenPopup(BasePopupView popup)
+    public void OpenPopup(UIBasePopupView popup)
     {
         OpenPopup(popup, immediate: false);
     }
 
-    public void OpenPopupImmediate(BasePopupView popup)
+    public void OpenPopupImmediate(UIBasePopupView popup)
     {
         OpenPopup(popup, immediate: true);
     }
 
-    public void OpenPopup(BasePopupView popup, bool immediate)
+    public void OpenPopup(UIBasePopupView popup, bool immediate)
     {
         if (popup == null)
         {
@@ -71,7 +71,7 @@ public class PopupManager : MonoBehaviour
 
         if (_currentPopup != null)
         {
-            BasePopupView previousPopup = _currentPopup;
+            UIBasePopupView previousPopup = _currentPopup;
             UnbindPopup(previousPopup);
             _currentPopup = null;
             previousPopup.Close(immediate || closeCurrentImmediatelyWhenOpeningAnother);
@@ -89,7 +89,7 @@ public class PopupManager : MonoBehaviour
         _currentPopup.Open(immediate);
     }
 
-    private void ActivateHierarchyForPopup(BasePopupView popup)
+    private void ActivateHierarchyForPopup(UIBasePopupView popup)
     {
         ActivateTransformHierarchy(popup.transform);
 
@@ -145,12 +145,12 @@ public class PopupManager : MonoBehaviour
         _currentPopup.Close(immediate);
     }
 
-    public void ClosePopup(BasePopupView popup)
+    public void ClosePopup(UIBasePopupView popup)
     {
         ClosePopup(popup, immediate: false);
     }
 
-    public void ClosePopup(BasePopupView popup, bool immediate)
+    public void ClosePopup(UIBasePopupView popup, bool immediate)
     {
         if (popup == null)
         {
@@ -166,7 +166,7 @@ public class PopupManager : MonoBehaviour
         popup.Close(immediate);
     }
 
-    private void HandlePopupClosed(BasePopupView popup)
+    private void HandlePopupClosed(UIBasePopupView popup)
     {
         if (popup != _currentPopup)
         {
@@ -183,12 +183,12 @@ public class PopupManager : MonoBehaviour
         }
     }
 
-    private void BindPopup(BasePopupView popup)
+    private void BindPopup(UIBasePopupView popup)
     {
         popup.Closed += HandlePopupClosed;
     }
 
-    private void UnbindPopup(BasePopupView popup)
+    private void UnbindPopup(UIBasePopupView popup)
     {
         popup.Closed -= HandlePopupClosed;
     }

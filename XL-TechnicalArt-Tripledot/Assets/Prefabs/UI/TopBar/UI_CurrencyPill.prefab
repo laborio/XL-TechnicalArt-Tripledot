@@ -730,6 +730,10 @@ PrefabInstance:
       propertyPath: localizationKey
       value: 888
       objectReference: {fileID: 0}
+    - target: {fileID: 4803117002597463927, guid: 7d43a2a9c164d421daa9d788c09e71b2, type: 3}
+      propertyPath: formatAsGroupedInteger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6908202924444120789, guid: 7d43a2a9c164d421daa9d788c09e71b2, type: 3}
       propertyPath: customStyleKey
       value: TopBarValue

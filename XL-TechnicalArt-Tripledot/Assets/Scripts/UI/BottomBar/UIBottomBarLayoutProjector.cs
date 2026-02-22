@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-internal sealed class BottomBarLayoutProjector
+internal sealed class UIBottomBarLayoutProjector
 {
     private RectTransform _buttonsContainer;
     private RectTransform _selectionHighlight;
@@ -49,7 +49,7 @@ internal sealed class BottomBarLayoutProjector
         return targetPosition;
     }
 
-    public float GetCurrentButtonWidth(TabButtonView button)
+    public float GetCurrentButtonWidth(UITabButtonView button)
     {
         if (button == null)
         {
@@ -71,7 +71,7 @@ internal sealed class BottomBarLayoutProjector
         return Mathf.Max(button.RectTransform.sizeDelta.x, 1f);
     }
 
-    public float GetTargetButtonWidth(TabButtonView button, bool selected, IDictionary<TabButtonView, float> baseWidths)
+    public float GetTargetButtonWidth(UITabButtonView button, bool selected, IDictionary<UITabButtonView, float> baseWidths)
     {
         if (button == null)
         {
@@ -93,7 +93,7 @@ internal sealed class BottomBarLayoutProjector
         return selected ? baseWidth + _selectedWidthExtra : baseWidth;
     }
 
-    public float GetHighlightTargetWidth(TabButtonView button, IDictionary<TabButtonView, float> baseWidths, bool selected)
+    public float GetHighlightTargetWidth(UITabButtonView button, IDictionary<UITabButtonView, float> baseWidths, bool selected)
     {
         float buttonWidth = GetTargetButtonWidth(button, selected, baseWidths);
         float targetWidth = buttonWidth - (_highlightHorizontalInset * 2f);
@@ -101,9 +101,9 @@ internal sealed class BottomBarLayoutProjector
     }
 
     public Vector2 GetProjectedHighlightTargetPosition(
-        TabButtonView previousButton,
-        TabButtonView currentButton,
-        IDictionary<TabButtonView, float> baseWidths)
+        UITabButtonView previousButton,
+        UITabButtonView currentButton,
+        IDictionary<UITabButtonView, float> baseWidths)
     {
         if (currentButton == null)
         {

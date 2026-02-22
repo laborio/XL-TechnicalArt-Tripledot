@@ -4,7 +4,7 @@ using UnityEditor;
 #endif
 
 [RequireComponent(typeof(RectTransform))]
-public class BottomBarSelectionHighlightSafeAreaCompensator : MonoBehaviour
+public class UIBottomBarSelectionHighlightSafeAreaCompensator : MonoBehaviour
 {
     [SerializeField] private RectTransform bottomBarRect;
     [SerializeField] private bool includeBottomSafeArea = true;

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public class LevelCompletedAnimEvents : MonoBehaviour
+public class UILevelCompletedAnimEvents : MonoBehaviour
 {
     [SerializeField] private List<UICounterTextTween> counters = new List<UICounterTextTween>();
 

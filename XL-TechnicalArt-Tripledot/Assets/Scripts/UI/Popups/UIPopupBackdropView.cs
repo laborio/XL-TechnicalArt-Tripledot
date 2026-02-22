@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
-public class PopupBackdropView : MonoBehaviour
+public class UIPopupBackdropView : MonoBehaviour
 {
     public event Action Clicked;
 

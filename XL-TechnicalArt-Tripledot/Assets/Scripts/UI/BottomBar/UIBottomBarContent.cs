@@ -1,4 +1,4 @@
-public enum BottomBarContent
+public enum UIBottomBarContent
 {
     LockLeft = 0,
     Store = 1,

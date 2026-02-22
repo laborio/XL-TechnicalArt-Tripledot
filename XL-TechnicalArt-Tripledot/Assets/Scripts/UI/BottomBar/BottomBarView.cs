@@ -7,11 +7,11 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class BottomBarView : MonoBehaviour
 {
-    public event Action<BottomBarContent> ContentActivated;
+    public event Action<UIBottomBarContent> ContentActivated;
     public event Action Closed;
 
-    [SerializeField] private List<TabButtonView> tabButtons = new List<TabButtonView>(5);
-    [SerializeField] private BottomBarAnimator animator;
+    [SerializeField] private List<UITabButtonView> tabButtons = new List<UITabButtonView>(5);
+    [SerializeField] private UIBottomBarAnimator animator;
     [SerializeField] private bool closeContentWhenToggledOff = true;
     [Header("Visibility Toggle Button")]
     [SerializeField] private Button visibilityToggleButton;
@@ -28,12 +28,12 @@ public class BottomBarView : MonoBehaviour
     {
         if (tabButtons.Count == 0)
         {
-            tabButtons.AddRange(GetComponentsInChildren<TabButtonView>(true));
+            tabButtons.AddRange(GetComponentsInChildren<UITabButtonView>(true));
         }
 
         for (int i = 0; i < tabButtons.Count; i++)
         {
-            TabButtonView button = tabButtons[i];
+            UITabButtonView button = tabButtons[i];
             if (button != null)
             {
                 button.SetSelected(false);
@@ -57,7 +57,7 @@ public class BottomBarView : MonoBehaviour
 
         for (int i = 0; i < tabButtons.Count; i++)
         {
-            TabButtonView button = tabButtons[i];
+            UITabButtonView button = tabButtons[i];
             if (button != null)
             {
                 button.Clicked += HandleButtonClicked;
@@ -74,7 +74,7 @@ public class BottomBarView : MonoBehaviour
 
         for (int i = 0; i < tabButtons.Count; i++)
         {
-            TabButtonView button = tabButtons[i];
+            UITabButtonView button = tabButtons[i];
             if (button != null)
             {
                 button.Clicked -= HandleButtonClicked;
@@ -87,7 +87,7 @@ public class BottomBarView : MonoBehaviour
         _visibilityToggleArrowTween?.Kill();
     }
 
-    public void Select(BottomBarContent content)
+    public void Select(UIBottomBarContent content)
     {
         int index = tabButtons.FindIndex(button => button != null && button.Content == content);
         if (index >= 0)
@@ -165,7 +165,7 @@ public class BottomBarView : MonoBehaviour
             .SetEase(visibilityToggleArrowEase);
     }
 
-    private void HandleButtonClicked(TabButtonView clickedButton)
+    private void HandleButtonClicked(UITabButtonView clickedButton)
     {
         if (clickedButton == null)
         {
@@ -200,13 +200,13 @@ public class BottomBarView : MonoBehaviour
             return;
         }
 
-        TabButtonView currentButton = tabButtons[index];
+        UITabButtonView currentButton = tabButtons[index];
         if (currentButton == null || currentButton.IsLocked)
         {
             return;
         }
 
-        TabButtonView previousButton = null;
+        UITabButtonView previousButton = null;
         if (_selectedIndex >= 0 && _selectedIndex < tabButtons.Count)
         {
             previousButton = tabButtons[_selectedIndex];
@@ -234,7 +234,7 @@ public class BottomBarView : MonoBehaviour
             return;
         }
 
-        TabButtonView selectedButton = tabButtons[_selectedIndex];
+        UITabButtonView selectedButton = tabButtons[_selectedIndex];
         _selectedIndex = -1;
 
         if (selectedButton != null)

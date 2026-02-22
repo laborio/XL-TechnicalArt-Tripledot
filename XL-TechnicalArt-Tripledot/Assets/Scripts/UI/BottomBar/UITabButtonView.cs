@@ -5,12 +5,12 @@ using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(RectTransform))]
-public class TabButtonView : MonoBehaviour
+public class UITabButtonView : MonoBehaviour
 {
     public bool IsLocked;
-    public BottomBarContent Content;
+    public UIBottomBarContent Content;
 
-    public event Action<TabButtonView> Clicked;
+    public event Action<UITabButtonView> Clicked;
 
     [SerializeField] private Button button;
     [SerializeField] private RectTransform iconTransform;

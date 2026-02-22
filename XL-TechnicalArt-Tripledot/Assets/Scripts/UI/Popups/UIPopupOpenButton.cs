@@ -3,11 +3,11 @@ using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Button))]
-public class PopupCloseButton : MonoBehaviour
+public class UIPopupOpenButton : MonoBehaviour
 {
-    [SerializeField] private PopupManager popupManager;
-    [SerializeField] private BasePopupView popupToClose;
-    [SerializeField] private bool closeImmediate = false;
+    [SerializeField] private UIPopupManager popupManager;
+    [SerializeField] private UIBasePopupView popupToOpen;
+    [SerializeField] private bool openImmediate = false;
 
     private Button _button;
 
@@ -39,23 +39,11 @@ public class PopupCloseButton : MonoBehaviour
 
     private void HandleClicked()
     {
-        if (popupManager != null)
+        if (popupManager == null || popupToOpen == null)
         {
-            if (popupToClose != null)
-            {
-                popupManager.ClosePopup(popupToClose, closeImmediate);
-            }
-            else
-            {
-                popupManager.CloseCurrent(closeImmediate);
-            }
-
             return;
         }
 
-        if (popupToClose != null)
-        {
-            popupToClose.Close(closeImmediate);
-        }
+        popupManager.OpenPopup(popupToOpen, openImmediate);
     }
 }

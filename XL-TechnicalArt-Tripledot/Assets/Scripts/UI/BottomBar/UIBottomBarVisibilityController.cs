@@ -1,7 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
-internal sealed class BottomBarVisibilityController
+internal sealed class UIBottomBarVisibilityController
 {
     private Transform _ownerTransform;
     private RectTransform _barRoot;

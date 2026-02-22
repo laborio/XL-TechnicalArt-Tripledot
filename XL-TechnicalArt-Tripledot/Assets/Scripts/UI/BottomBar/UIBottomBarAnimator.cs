@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
-public class BottomBarAnimator : MonoBehaviour
+public class UIBottomBarAnimator : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private RectTransform barRoot;
@@ -42,11 +42,11 @@ public class BottomBarAnimator : MonoBehaviour
     [SerializeField] private float iconFeedbackWiggleDistance = 8f;
     [SerializeField] private int iconFeedbackWiggleVibrato = 8;
 
-    private readonly Dictionary<TabButtonView, float> _baseWidths = new Dictionary<TabButtonView, float>();
-    private readonly Dictionary<TabButtonView, Tween> _buttonWidthTweens = new Dictionary<TabButtonView, Tween>();
-    private readonly Dictionary<TabButtonView, Tween> _iconTweens = new Dictionary<TabButtonView, Tween>();
-    private BottomBarVisibilityController _visibilityController;
-    private BottomBarLayoutProjector _layoutProjector;
+    private readonly Dictionary<UITabButtonView, float> _baseWidths = new Dictionary<UITabButtonView, float>();
+    private readonly Dictionary<UITabButtonView, Tween> _buttonWidthTweens = new Dictionary<UITabButtonView, Tween>();
+    private readonly Dictionary<UITabButtonView, Tween> _iconTweens = new Dictionary<UITabButtonView, Tween>();
+    private UIBottomBarVisibilityController _visibilityController;
+    private UIBottomBarLayoutProjector _layoutProjector;
 
     private Tween _highlightMoveTween;
     private Tween _highlightWidthTween;
@@ -56,7 +56,7 @@ public class BottomBarAnimator : MonoBehaviour
 
     public bool IsShown => _visibilityController == null || _visibilityController.IsShown;
 
-    public void Initialize(IReadOnlyList<TabButtonView> buttons)
+    public void Initialize(IReadOnlyList<UITabButtonView> buttons)
     {
         EnsureControllersConfigured();
 
@@ -93,7 +93,7 @@ public class BottomBarAnimator : MonoBehaviour
         _visibilityController.Hide(immediate);
     }
 
-    public void AnimateSelect(TabButtonView previousButton, TabButtonView currentButton)
+    public void AnimateSelect(UITabButtonView previousButton, UITabButtonView currentButton)
     {
         EnsureControllersConfigured();
 
@@ -152,7 +152,7 @@ public class BottomBarAnimator : MonoBehaviour
         AnimateIconFeedback(currentButton);
     }
 
-    public void AnimateClose(TabButtonView deselectedButton)
+    public void AnimateClose(UITabButtonView deselectedButton)
     {
         EnsureControllersConfigured();
         _layoutProjector.EnsureLayoutUpToDate();
@@ -215,7 +215,7 @@ public class BottomBarAnimator : MonoBehaviour
         return tween;
     }
 
-    private void CacheBaseWidths(IReadOnlyList<TabButtonView> buttons)
+    private void CacheBaseWidths(IReadOnlyList<UITabButtonView> buttons)
     {
         _baseWidths.Clear();
 
@@ -228,7 +228,7 @@ public class BottomBarAnimator : MonoBehaviour
 
         for (int i = 0; i < buttons.Count; i++)
         {
-            TabButtonView button = buttons[i];
+            UITabButtonView button = buttons[i];
             if (button == null)
             {
                 continue;
@@ -239,7 +239,7 @@ public class BottomBarAnimator : MonoBehaviour
         }
     }
 
-    private void AnimateButtonWidth(TabButtonView button, bool selected)
+    private void AnimateButtonWidth(UITabButtonView button, bool selected)
     {
         if (button == null)
         {
@@ -278,7 +278,7 @@ public class BottomBarAnimator : MonoBehaviour
         _buttonWidthTweens[button] = tween;
     }
 
-    private void AnimateIconFeedback(TabButtonView button)
+    private void AnimateIconFeedback(UITabButtonView button)
     {
         RectTransform icon = button.IconFeedbackTransform;
         if (icon == null)
@@ -339,7 +339,7 @@ public class BottomBarAnimator : MonoBehaviour
     {
         if (_visibilityController == null)
         {
-            _visibilityController = new BottomBarVisibilityController();
+            _visibilityController = new UIBottomBarVisibilityController();
         }
 
         _visibilityController.Configure(
@@ -355,7 +355,7 @@ public class BottomBarAnimator : MonoBehaviour
 
         if (_layoutProjector == null)
         {
-            _layoutProjector = new BottomBarLayoutProjector();
+            _layoutProjector = new UIBottomBarLayoutProjector();
         }
 
         _layoutProjector.Configure(
@@ -371,12 +371,12 @@ public class BottomBarAnimator : MonoBehaviour
         _visibilityController?.Dispose();
         KillHighlightTweens();
 
-        foreach (KeyValuePair<TabButtonView, Tween> pair in _buttonWidthTweens)
+        foreach (KeyValuePair<UITabButtonView, Tween> pair in _buttonWidthTweens)
         {
             pair.Value?.Kill();
         }
 
-        foreach (KeyValuePair<TabButtonView, Tween> pair in _iconTweens)
+        foreach (KeyValuePair<UITabButtonView, Tween> pair in _iconTweens)
         {
             pair.Value?.Kill();
         }

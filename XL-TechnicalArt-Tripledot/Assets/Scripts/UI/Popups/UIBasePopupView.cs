@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(RectTransform))]
-public class BasePopupView : MonoBehaviour
+public class UIBasePopupView : MonoBehaviour
 {
-    public event Action<BasePopupView> Opened;
-    public event Action<BasePopupView> Closed;
+    public event Action<UIBasePopupView> Opened;
+    public event Action<UIBasePopupView> Closed;
 
     [Header("References")]
     [SerializeField] private RectTransform popupRoot;
@@ -32,7 +32,7 @@ public class BasePopupView : MonoBehaviour
     [SerializeField] private bool deactivateOnClose = true;
     [SerializeField] private bool forceLayoutRebuildOnOpen = true;
 
-    private PopupManager _owner;
+    private UIPopupManager _owner;
     private Tween _openTween;
     private Tween _closeTween;
     private Tween _idleTween;
@@ -70,7 +70,7 @@ public class BasePopupView : MonoBehaviour
         KillOpenCloseTweens();
     }
 
-    public void SetOwner(PopupManager owner)
+    public void SetOwner(UIPopupManager owner)
     {
         _owner = owner;
     }

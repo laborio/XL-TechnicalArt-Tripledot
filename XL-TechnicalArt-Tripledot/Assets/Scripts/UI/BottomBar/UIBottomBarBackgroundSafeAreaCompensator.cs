@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(RectTransform))]
-public class BottomBarBackgroundSafeAreaCompensator : MonoBehaviour
+public class UIBottomBarBackgroundSafeAreaCompensator : MonoBehaviour
 {
     [Tooltip("Extra pixels added on top of the safe-area inset, if you want more breathing room.")]
     [SerializeField] private float extraPadding = 0f;
