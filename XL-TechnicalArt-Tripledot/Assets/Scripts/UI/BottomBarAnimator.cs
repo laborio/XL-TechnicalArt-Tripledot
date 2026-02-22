@@ -45,29 +45,20 @@ public class BottomBarAnimator : MonoBehaviour
     private readonly Dictionary<TabButtonView, float> _baseWidths = new Dictionary<TabButtonView, float>();
     private readonly Dictionary<TabButtonView, Tween> _buttonWidthTweens = new Dictionary<TabButtonView, Tween>();
     private readonly Dictionary<TabButtonView, Tween> _iconTweens = new Dictionary<TabButtonView, Tween>();
+    private BottomBarVisibilityController _visibilityController;
+    private BottomBarLayoutProjector _layoutProjector;
 
     private Tween _highlightMoveTween;
     private Tween _highlightWidthTween;
     private Tween _highlightScaleTween;
     private Tween _highlightFadeTween;
     private CanvasGroup _highlightCanvasGroup;
-    private Tween _barMoveTween;
-    private Tween _barFadeTween;
-    private Tween _barBackgroundMoveTween;
-    private Tween _barBackgroundFadeTween;
-    private CanvasGroup _barCanvasGroup;
-    private CanvasGroup _barBackgroundCanvasGroup;
-    private Vector2 _barShownAnchoredPosition;
-    private Vector2 _barBackgroundShownAnchoredPosition;
-    private bool _barPositionInitialized;
-    private bool _barBackgroundPositionInitialized;
-    private bool _isShown = true;
 
-    public bool IsShown => _isShown;
+    public bool IsShown => _visibilityController == null || _visibilityController.IsShown;
 
     public void Initialize(IReadOnlyList<TabButtonView> buttons)
     {
-        InitializeBarReferences();
+        EnsureControllersConfigured();
 
         if (selectionHighlight != null && fadeHighlight)
         {
@@ -92,110 +83,33 @@ public class BottomBarAnimator : MonoBehaviour
 
     public void Show(bool immediate = false)
     {
-        InitializeBarReferences();
-        if (barRoot == null)
-        {
-            return;
-        }
-
-        KillBarTweens();
-        _isShown = true;
-
-        if (immediate)
-        {
-            barRoot.anchoredPosition = _barShownAnchoredPosition;
-            if (barBackgroundRoot != null)
-            {
-                barBackgroundRoot.anchoredPosition = _barBackgroundShownAnchoredPosition;
-            }
-
-            SetBarAlpha(1f);
-            SetBarInteractable(true);
-            return;
-        }
-
-        SetBarInteractable(false);
-        _barMoveTween = barRoot.DOAnchorPos(_barShownAnchoredPosition, showDuration)
-            .SetEase(showEase)
-            .OnComplete(() => SetBarInteractable(true));
-
-        if (barBackgroundRoot != null)
-        {
-            _barBackgroundMoveTween = barBackgroundRoot.DOAnchorPos(_barBackgroundShownAnchoredPosition, showDuration).SetEase(showEase);
-        }
-
-        if (fadeBar && _barCanvasGroup != null)
-        {
-            _barFadeTween = _barCanvasGroup.DOFade(1f, showDuration).SetEase(showEase);
-        }
-
-        if (fadeBar && _barBackgroundCanvasGroup != null)
-        {
-            _barBackgroundFadeTween = _barBackgroundCanvasGroup.DOFade(1f, showDuration).SetEase(showEase);
-        }
+        EnsureControllersConfigured();
+        _visibilityController.Show(immediate);
     }
 
     public void Hide(bool immediate = false)
     {
-        InitializeBarReferences();
-        if (barRoot == null)
-        {
-            return;
-        }
-
-        KillBarTweens();
-        _isShown = false;
-
-        Vector2 hiddenPosition = GetBarHiddenAnchoredPosition();
-        Vector2 backgroundHiddenPosition = GetBarBackgroundHiddenAnchoredPosition();
-
-        if (immediate)
-        {
-            barRoot.anchoredPosition = hiddenPosition;
-            if (barBackgroundRoot != null)
-            {
-                barBackgroundRoot.anchoredPosition = backgroundHiddenPosition;
-            }
-
-            SetBarAlpha(fadeBar ? 0f : 1f);
-            SetBarInteractable(false);
-            return;
-        }
-
-        SetBarInteractable(false);
-        _barMoveTween = barRoot.DOAnchorPos(hiddenPosition, hideDuration).SetEase(hideEase);
-
-        if (barBackgroundRoot != null)
-        {
-            _barBackgroundMoveTween = barBackgroundRoot.DOAnchorPos(backgroundHiddenPosition, hideDuration).SetEase(hideEase);
-        }
-
-        if (fadeBar && _barCanvasGroup != null)
-        {
-            _barFadeTween = _barCanvasGroup.DOFade(0f, hideDuration).SetEase(hideEase);
-        }
-
-        if (fadeBar && _barBackgroundCanvasGroup != null)
-        {
-            _barBackgroundFadeTween = _barBackgroundCanvasGroup.DOFade(0f, hideDuration).SetEase(hideEase);
-        }
+        EnsureControllersConfigured();
+        _visibilityController.Hide(immediate);
     }
 
     public void AnimateSelect(TabButtonView previousButton, TabButtonView currentButton)
     {
+        EnsureControllersConfigured();
+
         if (currentButton == null)
         {
             return;
         }
 
-        EnsureLayoutUpToDate();
+        _layoutProjector.EnsureLayoutUpToDate();
 
         if (selectionHighlight != null && buttonsContainer != null)
         {
             KillHighlightTweens();
 
-            float targetWidth = GetHighlightTargetWidth(currentButton);
-            Vector2 targetPosition = GetProjectedHighlightTargetPosition(previousButton, currentButton);
+            float targetWidth = _layoutProjector.GetHighlightTargetWidth(currentButton, _baseWidths, selected: true);
+            Vector2 targetPosition = _layoutProjector.GetProjectedHighlightTargetPosition(previousButton, currentButton, _baseWidths);
 
             if (previousButton == null)
             {
@@ -240,7 +154,8 @@ public class BottomBarAnimator : MonoBehaviour
 
     public void AnimateClose(TabButtonView deselectedButton)
     {
-        EnsureLayoutUpToDate();
+        EnsureControllersConfigured();
+        _layoutProjector.EnsureLayoutUpToDate();
 
         if (selectionHighlight != null)
         {
@@ -279,17 +194,8 @@ public class BottomBarAnimator : MonoBehaviour
 
     public Vector2 GetHighlightTargetPosition(RectTransform tabRect)
     {
-        if (tabRect == null || buttonsContainer == null || selectionHighlight == null)
-        {
-            return Vector2.zero;
-        }
-
-        Vector3 worldCenter = tabRect.TransformPoint(tabRect.rect.center);
-        Vector3 localCenter = buttonsContainer.InverseTransformPoint(worldCenter);
-
-        Vector2 targetPosition = selectionHighlight.anchoredPosition;
-        targetPosition.x = localCenter.x;
-        return targetPosition;
+        EnsureControllersConfigured();
+        return _layoutProjector.GetHighlightTargetPosition(tabRect);
     }
 
     public Tween AnimateRectWidth(RectTransform targetRect, float targetWidth, float duration, Ease ease)
@@ -318,7 +224,7 @@ public class BottomBarAnimator : MonoBehaviour
             return;
         }
 
-        EnsureLayoutUpToDate();
+        _layoutProjector.EnsureLayoutUpToDate();
 
         for (int i = 0; i < buttons.Count; i++)
         {
@@ -328,7 +234,7 @@ public class BottomBarAnimator : MonoBehaviour
                 continue;
             }
 
-            float baseWidth = GetCurrentButtonWidth(button);
+            float baseWidth = _layoutProjector.GetCurrentButtonWidth(button);
             _baseWidths[button] = baseWidth;
         }
     }
@@ -346,7 +252,7 @@ public class BottomBarAnimator : MonoBehaviour
             return;
         }
 
-        float targetWidth = GetTargetButtonWidth(button, selected);
+        float targetWidth = _layoutProjector.GetTargetButtonWidth(button, selected, _baseWidths);
 
         if (_buttonWidthTweens.TryGetValue(button, out Tween existingTween) && existingTween.IsActive())
         {
@@ -355,7 +261,7 @@ public class BottomBarAnimator : MonoBehaviour
 
         if (layoutElement.preferredWidth < 0f)
         {
-            layoutElement.preferredWidth = GetCurrentButtonWidth(button);
+            layoutElement.preferredWidth = _layoutProjector.GetCurrentButtonWidth(button);
         }
 
         Tween tween = DOTween.To(
@@ -416,122 +322,6 @@ public class BottomBarAnimator : MonoBehaviour
         _iconTweens[button] = sequence;
     }
 
-    private float GetTargetButtonWidth(TabButtonView button, bool selected)
-    {
-        if (!_baseWidths.TryGetValue(button, out float baseWidth))
-        {
-            baseWidth = GetCurrentButtonWidth(button);
-            _baseWidths[button] = baseWidth;
-        }
-
-        return selected ? baseWidth + selectedWidthExtra : baseWidth;
-    }
-
-    private float GetHighlightTargetWidth(TabButtonView button)
-    {
-        return GetHighlightTargetWidth(button, true);
-    }
-
-    private float GetHighlightTargetWidth(TabButtonView button, bool selected)
-    {
-        float buttonWidth = GetTargetButtonWidth(button, selected);
-        float targetWidth = buttonWidth - (highlightHorizontalInset * 2f);
-        return Mathf.Max(highlightMinWidth, targetWidth);
-    }
-
-    private Vector2 GetProjectedHighlightTargetPosition(TabButtonView previousButton, TabButtonView currentButton)
-    {
-        LayoutElement previousLayout = previousButton != null ? previousButton.LayoutElement : null;
-        LayoutElement currentLayout = currentButton != null ? currentButton.LayoutElement : null;
-
-        float previousOriginalPreferred = 0f;
-        float currentOriginalPreferred = 0f;
-        bool previousChanged = false;
-        bool currentChanged = false;
-
-        if (previousLayout != null)
-        {
-            previousOriginalPreferred = previousLayout.preferredWidth;
-            previousLayout.preferredWidth = GetTargetButtonWidth(previousButton, false);
-            previousChanged = true;
-        }
-
-        if (currentLayout != null)
-        {
-            currentOriginalPreferred = currentLayout.preferredWidth;
-            currentLayout.preferredWidth = GetTargetButtonWidth(currentButton, true);
-            currentChanged = true;
-        }
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(buttonsContainer);
-        Vector2 projectedPosition = GetHighlightTargetPosition(currentButton.RectTransform);
-
-        if (previousChanged)
-        {
-            previousLayout.preferredWidth = previousOriginalPreferred;
-        }
-
-        if (currentChanged)
-        {
-            currentLayout.preferredWidth = currentOriginalPreferred;
-        }
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(buttonsContainer);
-        return projectedPosition;
-    }
-
-    private Vector2 GetProjectedHighlightTargetPositionOnClose(TabButtonView deselectedButton)
-    {
-        if (deselectedButton == null)
-        {
-            return selectionHighlight != null ? selectionHighlight.anchoredPosition : Vector2.zero;
-        }
-
-        LayoutElement deselectedLayout = deselectedButton.LayoutElement;
-        if (deselectedLayout == null)
-        {
-            return GetHighlightTargetPosition(deselectedButton.RectTransform);
-        }
-
-        float deselectedOriginalPreferred = deselectedLayout.preferredWidth;
-        deselectedLayout.preferredWidth = GetTargetButtonWidth(deselectedButton, false);
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(buttonsContainer);
-        Vector2 projectedPosition = GetHighlightTargetPosition(deselectedButton.RectTransform);
-
-        deselectedLayout.preferredWidth = deselectedOriginalPreferred;
-        LayoutRebuilder.ForceRebuildLayoutImmediate(buttonsContainer);
-
-        return projectedPosition;
-    }
-
-    private float GetCurrentButtonWidth(TabButtonView button)
-    {
-        LayoutElement layoutElement = button.LayoutElement;
-        if (layoutElement != null && layoutElement.preferredWidth > 0f)
-        {
-            return layoutElement.preferredWidth;
-        }
-
-        float rectWidth = button.RectTransform.rect.width;
-        if (rectWidth > 0f)
-        {
-            return rectWidth;
-        }
-
-        return Mathf.Max(button.RectTransform.sizeDelta.x, 1f);
-    }
-
-    private void EnsureLayoutUpToDate()
-    {
-        Canvas.ForceUpdateCanvases();
-
-        if (buttonsContainer != null)
-        {
-            LayoutRebuilder.ForceRebuildLayoutImmediate(buttonsContainer);
-        }
-    }
-
     private void SetRectWidth(RectTransform rectTransform, float width)
     {
         rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
@@ -545,145 +335,40 @@ public class BottomBarAnimator : MonoBehaviour
         _highlightFadeTween?.Kill();
     }
 
-    private void InitializeBarReferences()
+    private void EnsureControllersConfigured()
     {
-        if (barRoot == null)
+        if (_visibilityController == null)
         {
-            barRoot = transform as RectTransform;
+            _visibilityController = new BottomBarVisibilityController();
         }
 
-        if (barRoot == null)
+        _visibilityController.Configure(
+            transform,
+            barRoot,
+            barBackgroundRoot,
+            fadeBar,
+            showDuration,
+            hideDuration,
+            showEase,
+            hideEase,
+            hiddenExtraOffset);
+
+        if (_layoutProjector == null)
         {
-            return;
+            _layoutProjector = new BottomBarLayoutProjector();
         }
 
-        if (!_barPositionInitialized)
-        {
-            _barShownAnchoredPosition = barRoot.anchoredPosition;
-            _barPositionInitialized = true;
-        }
-
-        if (barBackgroundRoot == null && barRoot.parent != null)
-        {
-            Transform sibling = barRoot.parent.Find("UI_BottomBarBackground");
-            if (sibling != null)
-            {
-                barBackgroundRoot = sibling as RectTransform;
-            }
-        }
-
-        _barCanvasGroup = barRoot.GetComponent<CanvasGroup>();
-        if (_barCanvasGroup == null)
-        {
-            _barCanvasGroup = barRoot.gameObject.AddComponent<CanvasGroup>();
-        }
-
-        if (barBackgroundRoot != null)
-        {
-            if (!_barBackgroundPositionInitialized)
-            {
-                _barBackgroundShownAnchoredPosition = barBackgroundRoot.anchoredPosition;
-                _barBackgroundPositionInitialized = true;
-            }
-
-            _barBackgroundCanvasGroup = barBackgroundRoot.GetComponent<CanvasGroup>();
-            if (_barBackgroundCanvasGroup == null)
-            {
-                _barBackgroundCanvasGroup = barBackgroundRoot.gameObject.AddComponent<CanvasGroup>();
-            }
-        }
-    }
-
-    private Vector2 GetBarHiddenAnchoredPosition()
-    {
-        Vector2 hiddenPosition = _barShownAnchoredPosition;
-        hiddenPosition.y -= GetBarHideDistance(barRoot);
-        return hiddenPosition;
-    }
-
-    private Vector2 GetBarBackgroundHiddenAnchoredPosition()
-    {
-        if (barBackgroundRoot == null)
-        {
-            return Vector2.zero;
-        }
-
-        Vector2 hiddenPosition = _barBackgroundShownAnchoredPosition;
-        hiddenPosition.y -= GetBarHideDistance(barBackgroundRoot);
-        return hiddenPosition;
-    }
-
-    private float GetBarHideDistance(RectTransform targetRoot)
-    {
-        if (targetRoot == null)
-        {
-            return hiddenExtraOffset;
-        }
-
-        float barHeight = targetRoot.rect.height;
-        if (barHeight <= 0f)
-        {
-            barHeight = Mathf.Abs(targetRoot.sizeDelta.y);
-        }
-
-        return barHeight + hiddenExtraOffset;
-    }
-
-    private void SetBarAlpha(float alpha)
-    {
-        if (!fadeBar || _barCanvasGroup == null)
-        {
-            if (!fadeBar)
-            {
-                return;
-            }
-        }
-
-        if (_barCanvasGroup != null)
-        {
-            _barCanvasGroup.alpha = alpha;
-        }
-
-        if (_barBackgroundCanvasGroup != null)
-        {
-            _barBackgroundCanvasGroup.alpha = alpha;
-        }
-    }
-
-    private void SetBarInteractable(bool interactable)
-    {
-        if (_barCanvasGroup == null)
-        {
-            if (_barBackgroundCanvasGroup == null)
-            {
-                return;
-            }
-        }
-
-        if (_barCanvasGroup != null)
-        {
-            _barCanvasGroup.interactable = interactable;
-            _barCanvasGroup.blocksRaycasts = interactable;
-        }
-
-        if (_barBackgroundCanvasGroup != null)
-        {
-            _barBackgroundCanvasGroup.interactable = interactable;
-            _barBackgroundCanvasGroup.blocksRaycasts = interactable;
-        }
-    }
-
-    private void KillBarTweens()
-    {
-        _barMoveTween?.Kill();
-        _barFadeTween?.Kill();
-        _barBackgroundMoveTween?.Kill();
-        _barBackgroundFadeTween?.Kill();
+        _layoutProjector.Configure(
+            buttonsContainer,
+            selectionHighlight,
+            selectedWidthExtra,
+            highlightHorizontalInset,
+            highlightMinWidth);
     }
 
     private void OnDestroy()
     {
-        KillBarTweens();
+        _visibilityController?.Dispose();
         KillHighlightTweens();
 
         foreach (KeyValuePair<TabButtonView, Tween> pair in _buttonWidthTweens)
