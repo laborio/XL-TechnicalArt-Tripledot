@@ -1,4 +1,7 @@
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [RequireComponent(typeof(RectTransform))]
 public class BottomBarSelectionHighlightSafeAreaCompensator : MonoBehaviour
@@ -12,6 +15,9 @@ public class BottomBarSelectionHighlightSafeAreaCompensator : MonoBehaviour
     private Vector2Int _lastScreenSize;
     private float _lastBottomBarHeight = -1f;
     private float _lastAppliedHeight = -1f;
+#if UNITY_EDITOR
+    private bool _editorApplyQueued;
+#endif
 
     private void Awake()
     {
@@ -22,6 +28,16 @@ public class BottomBarSelectionHighlightSafeAreaCompensator : MonoBehaviour
     private void OnEnable()
     {
         Apply();
+    }
+
+    private void OnDisable()
+    {
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            CancelEditorApply();
+        }
+#endif
     }
 
     private void LateUpdate()
@@ -42,8 +58,43 @@ public class BottomBarSelectionHighlightSafeAreaCompensator : MonoBehaviour
 
         if (!Application.isPlaying)
         {
-            Apply();
+            QueueEditorApply();
         }
+    }
+
+    private void QueueEditorApply()
+    {
+        if (_editorApplyQueued)
+        {
+            return;
+        }
+
+        _editorApplyQueued = true;
+        EditorApplication.delayCall += ApplyFromEditorDelayCall;
+    }
+
+    private void CancelEditorApply()
+    {
+        if (!_editorApplyQueued)
+        {
+            return;
+        }
+
+        _editorApplyQueued = false;
+        EditorApplication.delayCall -= ApplyFromEditorDelayCall;
+    }
+
+    private void ApplyFromEditorDelayCall()
+    {
+        EditorApplication.delayCall -= ApplyFromEditorDelayCall;
+        _editorApplyQueued = false;
+
+        if (this == null || !isActiveAndEnabled || Application.isPlaying)
+        {
+            return;
+        }
+
+        Apply();
     }
 #endif
 

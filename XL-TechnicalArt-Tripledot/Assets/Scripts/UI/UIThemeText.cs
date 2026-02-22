@@ -52,12 +52,19 @@ public class UIThemeText : MonoBehaviour
             tmpText.font = style.fontAsset;
         }
 
+        // Keep font and shared material in sync. If these diverge, TMP can sample
+        // the wrong atlas and render fragmented glyphs.
+        if (!TrySyncSharedMaterialWithFont(tmpText))
+        {
+            return;
+        }
+
         tmpText.fontSize = style.fontSize;
         tmpText.color = style.color;
 
         // In edit-time OnValidate, TMP may not have a shared material yet.
         // Outline setters create material instances and will throw if source is null.
-        if (TryEnsureSharedMaterial(tmpText) && TryEnsureCanvasRenderer(tmpText))
+        if (TryEnsureCanvasRenderer(tmpText))
         {
             tmpText.outlineColor = style.outlineColor;
             tmpText.outlineWidth = style.outlineEnabled ? Mathf.Clamp01(style.outlineWidth) : 0f;
@@ -84,6 +91,8 @@ public class UIThemeText : MonoBehaviour
 
         if (TryEnsureCanvasRenderer(tmpText))
         {
+            tmpText.UpdateMeshPadding();
+            tmpText.SetAllDirty();
             tmpText.ForceMeshUpdate();
         }
     }
@@ -106,21 +115,22 @@ public class UIThemeText : MonoBehaviour
         return tmpText != null;
     }
 
-    private static bool TryEnsureSharedMaterial(TextMeshProUGUI tmpText)
+    private static bool TrySyncSharedMaterialWithFont(TextMeshProUGUI tmpText)
     {
         if (tmpText == null)
         {
             return false;
         }
 
-        if (tmpText.fontSharedMaterial != null)
+        if (tmpText.font == null || tmpText.font.material == null)
         {
-            return true;
+            return false;
         }
 
-        if (tmpText.font != null && tmpText.font.material != null)
+        Material expected = tmpText.font.material;
+        if (tmpText.fontSharedMaterial != expected)
         {
-            tmpText.fontSharedMaterial = tmpText.font.material;
+            tmpText.fontSharedMaterial = expected;
         }
 
         return tmpText.fontSharedMaterial != null;
