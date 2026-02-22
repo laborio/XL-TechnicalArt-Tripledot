@@ -537,7 +537,8 @@ MonoBehaviour:
   minHeight: 0
   maxWidth: 0
   maxHeight: 0
-  updateContinuously: 1
+  updateContinuously: 0
+  refreshOnTextChanged: 1
 --- !u!1 &4754586137123247851
 GameObject:
   m_ObjectHideFlags: 0

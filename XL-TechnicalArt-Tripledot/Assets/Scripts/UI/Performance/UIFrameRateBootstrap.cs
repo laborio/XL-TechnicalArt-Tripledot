@@ -4,8 +4,22 @@ using UnityEngine;
 [DefaultExecutionOrder(-10000)]
 public class UIFrameRateBootstrap : MonoBehaviour
 {
+    private const int DefaultTargetFps = 60;
+
     [SerializeField] private int targetFps = 60;
-    [SerializeField] private bool logOnApply = true;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void ApplyFrameRateSettingsBeforeSceneLoad()
+    {
+        QualitySettings.vSyncCount = 0;
+
+        // Ensure we never fall back to platform defaults (commonly 30 FPS on mobile)
+        // before scene objects get a chance to initialize.
+        if (Application.targetFrameRate <= 0)
+        {
+            Application.targetFrameRate = DefaultTargetFps;
+        }
+    }
 
     private void Awake()
     {
@@ -17,21 +31,6 @@ public class UIFrameRateBootstrap : MonoBehaviour
     {
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = Mathf.Max(1, targetFps);
-
-        if (!logOnApply)
-        {
-            return;
-        }
-
-#if UNITY_2022_2_OR_NEWER
-        float refresh = (float)Screen.currentResolution.refreshRateRatio.value;
-#else
-        int refresh = Screen.currentResolution.refreshRate;
-#endif
-        Debug.Log(
-            $"[UIFrameRateBootstrap] Applied vSync={QualitySettings.vSyncCount}, " +
-            $"targetFPS={Application.targetFrameRate}, displayRefresh={refresh}",
-            this);
     }
 
 #if UNITY_EDITOR

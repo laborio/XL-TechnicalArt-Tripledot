@@ -30,9 +30,11 @@ public class UIPopupBackdropView : MonoBehaviour
     [Header("Behavior")]
     [SerializeField] private bool hideOnAwake = true;
     [SerializeField] private bool deactivateOnHide = true;
+    [SerializeField] private bool keepActiveAfterFirstShow = true;
 
     private Tween _fadeTween;
     private Tween _volumeTween;
+    private bool _hasShownAtLeastOnce;
 
     private void Awake()
     {
@@ -74,6 +76,7 @@ public class UIPopupBackdropView : MonoBehaviour
         EnsureReferences();
 
         gameObject.SetActive(true);
+        _hasShownAtLeastOnce = true;
         if (blurRoot != null)
         {
             blurRoot.SetActive(true);
@@ -127,10 +130,7 @@ public class UIPopupBackdropView : MonoBehaviour
         if (immediate)
         {
             ApplyHiddenState();
-            if (deactivateOnHide)
-            {
-                gameObject.SetActive(false);
-            }
+            DeactivateAfterHideIfNeeded();
 
             return;
         }
@@ -148,7 +148,7 @@ public class UIPopupBackdropView : MonoBehaviour
 
             if (deactivateOnHide)
             {
-                gameObject.SetActive(false);
+                DeactivateAfterHideIfNeeded();
             }
 
             return;
@@ -166,7 +166,7 @@ public class UIPopupBackdropView : MonoBehaviour
 
                 if (deactivateOnHide)
                 {
-                    gameObject.SetActive(false);
+                    DeactivateAfterHideIfNeeded();
                 }
             });
     }
@@ -287,6 +287,21 @@ public class UIPopupBackdropView : MonoBehaviour
 
         canvasGroup.interactable = interactable;
         canvasGroup.blocksRaycasts = interactable;
+    }
+
+    private void DeactivateAfterHideIfNeeded()
+    {
+        if (!deactivateOnHide)
+        {
+            return;
+        }
+
+        if (keepActiveAfterFirstShow && _hasShownAtLeastOnce)
+        {
+            return;
+        }
+
+        gameObject.SetActive(false);
     }
 
 #if UNITY_EDITOR

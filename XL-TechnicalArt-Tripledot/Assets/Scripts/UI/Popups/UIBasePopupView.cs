@@ -30,6 +30,7 @@ public class UIBasePopupView : MonoBehaviour
     [Header("Behavior")]
     [SerializeField] private bool hideOnAwake = true;
     [SerializeField] private bool deactivateOnClose = true;
+    [SerializeField] private bool keepActiveAfterFirstOpen = true;
     [SerializeField] private bool forceLayoutRebuildOnOpen = true;
 
     private UIPopupManager _owner;
@@ -38,6 +39,7 @@ public class UIBasePopupView : MonoBehaviour
     private Tween _idleTween;
     private Vector2 _shownAnchoredPosition;
     private bool _initialized;
+    private bool _hasOpenedAtLeastOnce;
 
     public bool IsOpen { get; private set; }
 
@@ -80,6 +82,7 @@ public class UIBasePopupView : MonoBehaviour
         EnsureInitialized();
 
         gameObject.SetActive(true);
+        _hasOpenedAtLeastOnce = true;
         RebuildLayoutNow();
         StopIdleAnimation();
         KillOpenCloseTweens();
@@ -123,11 +126,7 @@ public class UIBasePopupView : MonoBehaviour
             SetCanvasInteractable(false);
             IsOpen = false;
             Closed?.Invoke(this);
-
-            if (deactivateOnClose)
-            {
-                gameObject.SetActive(false);
-            }
+            DeactivateAfterCloseIfNeeded();
 
             return;
         }
@@ -143,11 +142,7 @@ public class UIBasePopupView : MonoBehaviour
         {
             IsOpen = false;
             Closed?.Invoke(this);
-
-            if (deactivateOnClose)
-            {
-                gameObject.SetActive(false);
-            }
+            DeactivateAfterCloseIfNeeded();
         });
     }
 
@@ -245,6 +240,21 @@ public class UIBasePopupView : MonoBehaviour
 
         canvasGroup.interactable = interactable;
         canvasGroup.blocksRaycasts = interactable;
+    }
+
+    private void DeactivateAfterCloseIfNeeded()
+    {
+        if (!deactivateOnClose)
+        {
+            return;
+        }
+
+        if (keepActiveAfterFirstOpen && _hasOpenedAtLeastOnce)
+        {
+            return;
+        }
+
+        gameObject.SetActive(false);
     }
 
     private void StartIdleAnimation()

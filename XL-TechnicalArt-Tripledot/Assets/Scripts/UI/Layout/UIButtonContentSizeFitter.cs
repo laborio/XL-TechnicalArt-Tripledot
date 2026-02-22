@@ -24,7 +24,8 @@ public class UIButtonContentSizeFitter : MonoBehaviour
     [SerializeField] private float maxHeight = 0f;
 
     [Header("Runtime")]
-    [SerializeField] private bool updateContinuously = true;
+    [SerializeField] private bool updateContinuously = false;
+    [SerializeField] private bool refreshOnTextChanged = true;
 
     private RectTransform _selfRect;
     private string _lastText = string.Empty;
@@ -35,6 +36,8 @@ public class UIButtonContentSizeFitter : MonoBehaviour
 #if UNITY_EDITOR
     private bool _pendingEditorRefresh;
 #endif
+    private bool _isListeningForTextChanges;
+    private bool _isRefreshingSize;
 
     private void Awake()
     {
@@ -44,11 +47,14 @@ public class UIButtonContentSizeFitter : MonoBehaviour
     private void OnEnable()
     {
         CacheReferences();
+        SubscribeTextChangeEvent();
         RequestRefresh();
     }
 
     private void OnDisable()
     {
+        UnsubscribeTextChangeEvent();
+
 #if UNITY_EDITOR
         if (_pendingEditorRefresh)
         {
@@ -56,6 +62,16 @@ public class UIButtonContentSizeFitter : MonoBehaviour
             _pendingEditorRefresh = false;
         }
 #endif
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeTextChangeEvent();
+    }
+
+    private void OnApplicationQuit()
+    {
+        UnsubscribeTextChangeEvent();
     }
 
     private void LateUpdate()
@@ -81,48 +97,99 @@ public class UIButtonContentSizeFitter : MonoBehaviour
         RefreshSize();
     }
 
-    [ContextMenu("Refresh Size")]
-    public void RefreshSize()
+    private void HandleTextChanged(UnityEngine.Object changedObject)
     {
-        CacheReferences();
-        if (targetRect == null || (label == null && contentRect == null))
+        // During play mode exit, TMP can dispatch text events while scene objects are being
+        // destroyed. Avoid accessing Behaviour properties until we know this instance is valid.
+        if (!this || !enabled || label == null || changedObject != label || _isRefreshingSize)
         {
             return;
         }
 
-        float preferredWidth = 0f;
-        if (label != null)
+        if (!gameObject.activeInHierarchy)
         {
-            label.ForceMeshUpdate();
-            preferredWidth = label.GetPreferredValues(label.text, Mathf.Infinity, Mathf.Infinity).x;
+            return;
         }
 
-        Vector2 contentSize = GetContentSize(contentRect);
-        float widthSource = Mathf.Max(preferredWidth, contentSize.x);
+        RefreshSize();
+    }
 
-        float width = Mathf.Max(minWidth, widthSource + horizontalPadding);
-        if (maxWidth > 0f)
+    private void SubscribeTextChangeEvent()
+    {
+        if (!refreshOnTextChanged)
         {
-            width = Mathf.Min(width, maxWidth);
+            return;
         }
 
-        float availableTextWidth = Mathf.Max(0f, width - horizontalPadding);
-        float preferredHeight = 0f;
-        if (label != null)
+        // Ensure this callback is registered at most once.
+        TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(HandleTextChanged);
+        TMPro_EventManager.TEXT_CHANGED_EVENT.Add(HandleTextChanged);
+        _isListeningForTextChanges = true;
+    }
+
+    private void UnsubscribeTextChangeEvent()
+    {
+        // Always attempt to remove so we're resilient to play mode/domain reload edge cases.
+        TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(HandleTextChanged);
+        _isListeningForTextChanges = false;
+    }
+
+    [ContextMenu("Refresh Size")]
+    public void RefreshSize()
+    {
+        if (_isRefreshingSize)
         {
-            preferredHeight = label.GetPreferredValues(label.text, availableTextWidth, Mathf.Infinity).y;
+            return;
         }
 
-        float heightSource = Mathf.Max(preferredHeight, contentSize.y);
-        float height = Mathf.Max(minHeight, heightSource + verticalPadding);
-        if (maxHeight > 0f)
-        {
-            height = Mathf.Min(height, maxHeight);
-        }
+        _isRefreshingSize = true;
 
-        targetRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
-        targetRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-        CacheLastState();
+        try
+        {
+            CacheReferences();
+            if (targetRect == null || (label == null && contentRect == null))
+            {
+                return;
+            }
+
+            float preferredWidth = 0f;
+            if (label != null)
+            {
+                label.ForceMeshUpdate();
+                preferredWidth = label.GetPreferredValues(label.text, Mathf.Infinity, Mathf.Infinity).x;
+            }
+
+            Vector2 contentSize = GetContentSize(contentRect);
+            float widthSource = Mathf.Max(preferredWidth, contentSize.x);
+
+            float width = Mathf.Max(minWidth, widthSource + horizontalPadding);
+            if (maxWidth > 0f)
+            {
+                width = Mathf.Min(width, maxWidth);
+            }
+
+            float availableTextWidth = Mathf.Max(0f, width - horizontalPadding);
+            float preferredHeight = 0f;
+            if (label != null)
+            {
+                preferredHeight = label.GetPreferredValues(label.text, availableTextWidth, Mathf.Infinity).y;
+            }
+
+            float heightSource = Mathf.Max(preferredHeight, contentSize.y);
+            float height = Mathf.Max(minHeight, heightSource + verticalPadding);
+            if (maxHeight > 0f)
+            {
+                height = Mathf.Min(height, maxHeight);
+            }
+
+            targetRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+            targetRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+            CacheLastState();
+        }
+        finally
+        {
+            _isRefreshingSize = false;
+        }
     }
 
     private void RequestRefresh()
@@ -231,6 +298,13 @@ public class UIButtonContentSizeFitter : MonoBehaviour
     private void OnValidate()
     {
         CacheReferences();
+
+        if (Application.isPlaying)
+        {
+            UnsubscribeTextChangeEvent();
+            SubscribeTextChangeEvent();
+        }
+
         RequestRefresh();
     }
 #endif

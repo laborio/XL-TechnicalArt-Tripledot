@@ -1,0 +1,7 @@
+# Unity local/generated artifacts for this project folder
+.utmp/
+ProfileAnalyzer/
+UserSettings/
+
+# macOS metadata
+.DS_Store
