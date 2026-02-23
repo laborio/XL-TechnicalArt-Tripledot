@@ -14,6 +14,8 @@ Main difficulties for me:  the bottom bar behavour, blur effect, some responsive
 - Design system asset: `Assets/Scripts/UI/Editor/UITheme.asset`
 - Design system source: `Assets/Scripts/UI/Theme/UIStyles.json`
 
+## APK file
+https://drive.google.com/drive/folders/1XrlOdyL_2T-Ermuqpthq78hDHpLnWGBn?usp=sharing
 
 ## Additional Notes
 
